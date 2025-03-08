@@ -3,8 +3,7 @@ import prisma from "../config/prisma";
 import twilioClient from "../config/twillio";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
+import { JWT_SECRET } from '../config/secret';
 
 export const sendOtp = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
   try {
@@ -88,12 +87,20 @@ export const verifyOtp = async (req: Request, res: Response, next: NextFunction)
       expiresIn: "7d",
     });
 
+
+    res.cookie("token", token, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", 
+      secure: process.env.NODE_ENV === "production", 
+    })
+
     await prisma.user.update({
       where: { id: user.id },
       data: { otp: null, otpExpiry: null },
     });
 
-    res.status(200).json({ message: "OTP verified successfully.", token, user });
+    res.status(200).json({ message: "OTP verified successfully.", user });
   } catch (error) {
     console.error("Error verifying OTP:", error);
     next(error)

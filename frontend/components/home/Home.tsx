@@ -1,14 +1,33 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Menu, X, ShoppingCart, Search, Heart, ChevronDown, User } from 'lucide-react';
 import ProductCard from '../ProductCard';
 import LoginModal from '../auth/LoginModal';
-import { products } from '../product';
+import { BACKEND_URL } from "@/config/config";
+import axios from "axios";
+import { Product } from '@/types/types';
 
 function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  console.log(products);
+  
+  useEffect(()=>{
+    const fetchProducts = async()=>{
+      try {
+        const res = await axios.get(`${BACKEND_URL}/api/v1/product`);
+    
+        setProducts(res?.data?.products);
+      } catch (error) {
+        console.log(error);
+        
+      }
+    };
+
+    fetchProducts();
+  }, [])
 
   return (
     <div className="min-h-screen bg-white">
@@ -95,7 +114,7 @@ function HomePage() {
         <h2 className="text-3xl font-bold mb-8">Featured Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product?.id} product={product} />
           ))}
         </div>
       </div>

@@ -11,7 +11,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <div className="group relative">
       <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
         <img
-          src={product.image}
+          src={product?.images?.[0]}
           alt={product.name}
           className="h-full w-full object-cover object-center group-hover:opacity-75 transition-opacity"
         />
@@ -27,7 +27,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="mt-4">
         <h3 className="text-sm text-gray-700">{product.name}</h3>
         <p className="mt-1 text-lg font-medium text-gray-900">${product.price}</p>
-        <div className="mt-1 flex space-x-2">
+        {/* <div className="mt-1 flex space-x-2">
           {product.colors.map((color) => (
             <div
               key={color}
@@ -35,7 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               style={{ backgroundColor: color }}
             />
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );

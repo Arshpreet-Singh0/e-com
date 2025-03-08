@@ -31,7 +31,7 @@ model Product {
   price       Float
   stock       Int      @default(0)
   images      String[] // Array of image URLs
-  category    String
+  category    String   //men or women
   brand       String?  // Optional brand name
   sizes       String[] // Available sizes (e.g., ["S", "M", "L", "XL"])
   tags        String[] // SEO-friendly tags (e.g., ["denim", "jeans", "slim fit"])
