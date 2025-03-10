@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 import { useAppDispatch } from "@/lib/store/hooks";
-import { setUser } from "@/lib/store/features/authSlice";
+import { setUser, User } from "@/lib/store/features/authSlice";
 
-const StoreUser = ({ user }: { user: any }) => {
+const StoreUser = ({ user }: { user: User }) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {

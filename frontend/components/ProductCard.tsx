@@ -1,15 +1,20 @@
+"use client";
+
 import React from 'react';
 import { Heart, ShoppingCart } from 'lucide-react';
 import { Product } from '@/types/types';
+import { useRouter } from 'next/navigation';
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const router = useRouter();
+  
   return (
     <div className="group relative">
-      <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+      <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100" onClick={()=>router.push(`/product/${product?.id}`)}>
         <img
           src={product?.images?.[0]}
           alt={product.name}

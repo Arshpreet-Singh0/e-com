@@ -6,6 +6,8 @@ import LoginModal from "@/components/auth/LoginModal";
 import { Toaster } from "@/components/ui/sonner"
 import getUserFromServer from "@/lib/auth";
 import StoreUser from "@/lib/StoreUser";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +42,9 @@ export default async function RootLayout({
       >
         <Providers>
           <StoreUser user={user}/>
+          <Navbar />
           {children}
+          <Footer />
           <Toaster richColors/>
           <LoginModal />
         </Providers>

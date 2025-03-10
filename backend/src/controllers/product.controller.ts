@@ -72,3 +72,20 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
         next(error);
     }
 }
+
+export const getProductById = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
+    try {
+        const {productId} = req.params;
+
+        const product = await prisma.product.findUnique({
+            where : {
+                id : productId
+            }
+        });
+
+        res.status(200).json(product);
+    } catch (error) {
+        next(error);
+        
+    }
+}
