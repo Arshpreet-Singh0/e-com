@@ -47,7 +47,7 @@ export const sendOtp = async (req: Request, res: Response, next: NextFunction) :
       to: `+91${phoneStr}`,
     });
 
-    res.status(200).json({ message: "OTP sent successfully." });
+    res.status(200).json({ message: "OTP sent successfully." , success : true});
   } catch (error) {
     console.error("Error sending OTP:", error);
     next(error);
@@ -95,12 +95,18 @@ export const verifyOtp = async (req: Request, res: Response, next: NextFunction)
       secure: process.env.NODE_ENV === "production", 
     })
 
-    await prisma.user.update({
+    const updateduser = await prisma.user.update({
       where: { id: user.id },
       data: { otp: null, otpExpiry: null },
+      select : {
+        name : true,
+        phone : true,
+        id : true,
+        role : true
+      }
     });
 
-    res.status(200).json({ message: "OTP verified successfully.", user });
+    res.status(200).json({ message: "OTP verified successfully.", user : updateduser , success :true});
   } catch (error) {
     console.error("Error verifying OTP:", error);
     next(error)
@@ -148,3 +154,38 @@ export const resendOtp = async (req: Request, res: Response, next: NextFunction)
     next(error);
   }
 };
+
+export const getUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const id = req.userId;
+    const user = await prisma.user.findUnique({ 
+      where: { id },
+      select : {
+        name : true,
+        phone : true,
+        id : true,
+        role : true
+      }
+    });
+    
+    res.status(200).json({ user, success : true });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    next(error);
+  }
+}
+
+export const logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.cookie("token", "", {
+      maxAge: 0,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    res.status(200).json({ message: "Logged out successfully." , success : true});
+  } catch (error) {
+    console.error("Error logging out:", error);
+    next(error);
+  }
+}

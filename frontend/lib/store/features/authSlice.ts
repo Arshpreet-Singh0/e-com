@@ -7,13 +7,13 @@ interface User {
   role: string;
 }
 
-const user: User | null = null;
+const initialState: { user: User | null } = {
+  user: null,
+};
 
 export const authSlice = createSlice({
   name: "auth",
-  initialState : {
-    user,
-  },
+  initialState,
   reducers: {
     setUser: (state, action) => {
       state.user =  action.payload;

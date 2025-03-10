@@ -1,19 +1,23 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Menu, X, ShoppingCart, Search, Heart, ChevronDown, User } from 'lucide-react';
+import { Menu, X, ShoppingCart, Search, Heart, ChevronDown, User, LogOut } from 'lucide-react';
 import ProductCard from '../ProductCard';
 import LoginModal from '../auth/LoginModal';
 import { BACKEND_URL } from "@/config/config";
 import axios from "axios";
 import { Product } from '@/types/types';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { openLoginModal } from '@/lib/store/features/loginModalSlice';
+import { clearUser, setUser } from '@/lib/store/features/authSlice';
+import { toast } from 'sonner';
 
 function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
-  console.log(products);
-  
+  const dispatch = useAppDispatch();
+  const {user} = useAppSelector(store=>store.auth);
+
   useEffect(()=>{
     const fetchProducts = async()=>{
       try {
@@ -28,6 +32,22 @@ function HomePage() {
 
     fetchProducts();
   }, [])
+
+  const handleLogOut = async () => {
+    try {
+      const res = await axios.get(`${BACKEND_URL}/api/v1/logout`, {
+        withCredentials: true,
+      });
+  
+      if (res?.data?.success) {
+        toast.success(res?.data?.message);
+        dispatch(clearUser());
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Logout failed. Please try again.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -68,12 +88,27 @@ function HomePage() {
               <button className="p-2">
                 <ShoppingCart size={24} />
               </button>
-              <button 
-                className="p-2 flex items-center text-gray-700 hover:text-black"
-                onClick={() => setIsLoginModalOpen(true)}
-              >
-                <User size={24} />
-              </button>
+              {
+                user!==null ? (
+                  <>
+<p>{user?.name}</p>
+<button 
+                  className="p-2 flex items-center text-gray-700 hover:text-black"
+                  onClick={handleLogOut}
+                >
+                  <LogOut size={24} />
+                </button>
+                
+                  </>
+                ) : (
+                  <button 
+                  className="p-2 flex items-center text-gray-700 hover:text-black"
+                  onClick={() => dispatch(openLoginModal())}
+                >
+                  <User size={24} />
+                </button>
+                )
+              }
             </div>
           </div>
         </div>
@@ -164,9 +199,6 @@ function HomePage() {
           </div>
         </div>
       </footer>
-
-      {/* Login Modal */}
-      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </div>
   );
 }

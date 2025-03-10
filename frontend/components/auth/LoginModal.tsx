@@ -2,36 +2,77 @@
 
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { closeLoginModal } from '@/lib/store/features/loginModalSlice';
+import axios from 'axios';
+import { BACKEND_URL } from '@/config/config';
+import { toast } from 'sonner';
+import { setUser } from '@/lib/store/features/authSlice';
 
-interface LoginModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
+const LoginModal = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
   const [otp, setOtp] = useState('');
+  const dispatch = useAppDispatch();
 
-  if (!isOpen) return null;
+  const {isLoginModalOpen} = useAppSelector(store=>store.modal);
 
-  const handleSubmitPhone = (e: React.FormEvent) => {
+  if (!isLoginModalOpen) return null;
+
+
+  const handlegetOTP = async(e: React.FormEvent) => {
     e.preventDefault();
-    setStep('otp');
+    
+    try {
+      const res = await axios.post(`${BACKEND_URL}/api/v1/getotp`, {name, phone, otp}, {
+        withCredentials : true,
+      });
+      
+      
+      if(res?.data?.success){
+        toast.success(res?.data?.message);
+        setStep('otp');
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleSubmitOTP = (e: React.FormEvent) => {
+  const handleSubmitOTP = async(e: React.FormEvent)=>{
     e.preventDefault();
-    onClose();
-    setStep('phone');
-    setPhone('');
-    setName('');
-    setOtp('');
-  };
+    
+    try {
+      const res = await axios.post(`${BACKEND_URL}/api/v1/verifyotp`, {name, phone, otp}, {
+        withCredentials : true,
+      });
+
+      if(res?.data?.success){
+        toast.success(res?.data?.message);
+        dispatch(setUser(res?.data?.user));
+        dispatch(closeLoginModal());
+      }
+      
+      
+      if(res?.data?.success){
+        toast.success(res?.data?.message);
+        setStep('otp');
+      }
+    } catch (error) {
+      console.log(error);
+      if(axios.isAxiosError(error)){
+        toast.error(error?.response?.data?.message || "something went wrong");
+      }
+    }
+  }
+
+
+  const onClose = ()=>{
+    dispatch(closeLoginModal());
+  }
 
   return (
-    <div className="fixed inset-0 bg-[rgba(255,255,255,0.03)] flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 shadow-2xl bg-opaci flex items-center justify-center z-50">
       <div className="bg-white w-full max-w-4xl rounded-lg overflow-hidden flex">
         <div className="hidden md:block w-1/2">
           <img
@@ -50,7 +91,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           {step === 'phone' ? (
-            <form onSubmit={handleSubmitPhone} className="space-y-4">
+            <form onSubmit={handlegetOTP} className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                   Full Name
@@ -87,7 +128,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               </button>
             </form>
           ) : (
-            <form onSubmit={handleSubmitOTP} className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmitOTP}>
               <div>
                 <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
                   Enter OTP
@@ -98,7 +139,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="Enter 6-digit OTP"
+                  placeholder="Enter 4digit OTP"
                   maxLength={6}
                   required
                 />
