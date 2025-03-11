@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/lib/store/Providers";
 import LoginModal from "@/components/auth/LoginModal";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 import getUserFromServer from "@/lib/auth";
 import StoreUser from "@/lib/StoreUser";
 import Navbar from "@/components/Navbar";
@@ -19,8 +19,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
-
 export const metadata: Metadata = {
   title: "Denim",
   description: "Denim is a modern e-commerce platform.",
@@ -28,28 +26,28 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
+}: Readonly<{ children: React.ReactNode }>) {
   
-}>) {
-  
-  const user = await getUserFromServer();
-  
+  let user = null;
+  try {
+    user = await getUserFromServer();
+  } catch (error) {
+    console.error("Error fetching user in RootLayout:", error);
+  }
+
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
-          <StoreUser user={user}/>
+          <StoreUser user={user} />
           <Navbar />
           {children}
           <Footer />
-          <Toaster richColors/>
+          <Toaster richColors />
           <LoginModal />
         </Providers>
-        
       </body>
     </html>
   );
 }
+

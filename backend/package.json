@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/generative-ai": "^0.24.0",
     "@prisma/client": "6.4.1",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
@@ -23,6 +24,9 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "openai": "^4.86.2",
+    "pg": "^8.13.3",
+    "pgvector": "^0.2.0",
     "prisma": "^6.4.1",
     "twilio": "^5.4.5",
     "zod": "^3.24.2"

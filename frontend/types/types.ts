@@ -5,5 +5,6 @@ export interface Product {
     images: string[];
     colors: string[];
     sizes : string[];
+    discount : number;
     description : string;
   }

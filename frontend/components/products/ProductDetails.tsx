@@ -56,7 +56,11 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
           {/* Product Info */}
           <div className="w-full md:w-2/5 p-8">
             <h2 className="text-3xl font-bold mb-4">{product.name} </h2>
-            <p className="text-2xl font-semibold mb-6">₹{product.price}</p>
+            <div className="flex gap-5 items-center">
+              <p className="text-2xl font-semibold mb-6"> ₹ {product.price} </p>
+              <p className="text-xl font-semibold mb-6 text-red-600">save {Math.floor(product.price * product.discount)/100}</p>
+
+            </div>
 
             {/* Size Selection */}
             <div className="mb-6">
