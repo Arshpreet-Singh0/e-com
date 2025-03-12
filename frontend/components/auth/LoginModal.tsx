@@ -8,6 +8,7 @@ import axios from 'axios';
 import { BACKEND_URL } from '@/config/config';
 import { toast } from 'sonner';
 import { setUser } from '@/lib/store/features/authSlice';
+import { handleAxiosError } from '@/utils/handleAxiosError';
 
 const LoginModal = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
@@ -23,6 +24,11 @@ const LoginModal = () => {
 
   const handlegetOTP = async(e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!navigator.onLine) {
+      toast.error("You are offline. Please check your internet connection.");
+      return;
+    }
     
     try {
       const res = await axios.post(`${BACKEND_URL}/api/v1/getotp`, {name, phone, otp}, {
@@ -36,6 +42,7 @@ const LoginModal = () => {
       }
     } catch (error) {
       console.log(error);
+      handleAxiosError(error);
     }
   };
 
@@ -60,9 +67,7 @@ const LoginModal = () => {
       }
     } catch (error) {
       console.log(error);
-      if(axios.isAxiosError(error)){
-        toast.error(error?.response?.data?.message || "something went wrong");
-      }
+      handleAxiosError(error);
     }
   }
 

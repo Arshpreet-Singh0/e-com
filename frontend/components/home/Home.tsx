@@ -5,7 +5,7 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <div className="relative pt-16">
+      <div className="relative ">
         <div className="h-[600px] w-full bg-cover bg-center" style={{
     backgroundImage: 'url("https://images.unsplash.com/photo-1582418702059-97ebafb35d09?auto=format&fit=crop&q=80")',
     backgroundSize: 'cover',

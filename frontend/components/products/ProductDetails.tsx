@@ -6,14 +6,13 @@ import { Heart, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "@/types/types";
 
 const ProductDetailsPage = ({ product }: { product: Product }) => {
-  console.log(product);
-  
+
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
 
   const productImages = [
-    product.images?.[0],
+    product?.images?.[0],
     "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80",
     "https://images.unsplash.com/photo-1605518216938-7c31b7b14ad0?auto=format&fit=crop&q=80",
   ];
@@ -24,7 +23,7 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
   const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-10 px-4">
+    <div className=" bg-gray-100 flex items-center justify-center py-10 px-4">
       <div className="bg-white max-w-6xl w-full rounded-lg overflow-hidden shadow-lg">
         <div className="flex flex-col md:flex-row">
           {/* Product Images */}

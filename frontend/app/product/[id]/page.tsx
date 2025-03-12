@@ -1,14 +1,22 @@
 import ProductDetails from "@/components/products/ProductDetails";
+import { SimilarProducts } from "@/components/products/SimilarProducts";
 import { BACKEND_URL } from "@/config/config";
 import axios from "axios";
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
+
+// Lazy load the SimilarProducts component
+// const SimilarProducts = dynamic(() => import("@/components/products/SimilarProducts"), {
+//   ssr: false, // Ensure it's only loaded on the client
+//   loading: () => <p className="text-center text-gray-500">Loading similar products...</p>,
+// });
 
 const getProducts = async (id: string) => {
   try {
     const res = await axios.get(`${BACKEND_URL}/api/v1/product/${id}`);
     return res.data;
   } catch (error) {
-    console.error("Error fetching product details:", error);
-    throw new Error("Failed to fetch product details");
+    return null;
   }
 };
 
@@ -17,20 +25,23 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  try {
     const id = (await params).id;
     const product = await getProducts(id);
 
     return (
       <>
-        <ProductDetails product={product} />
+        {product ? (
+          <ProductDetails product={product} />
+        ) : (
+          <div className="h-screen text-center flex items-center justify-center">
+            <p className="text-2xl font-semibold text-gray-600">Product not found</p>
+          </div>
+        )}
+
+        {/* Use Suspense to show a fallback while SimilarProducts is loading */}
+        <Suspense fallback={<p className="text-center text-gray-500">Loading similar products...</p>}>
+          <SimilarProducts id={id} />
+        </Suspense>
       </>
     );
-  } catch (error) {
-    return (
-      <div className="text-red-500 text-center mt-10">
-        <p>Failed to load product details. Please try again later.</p>
-      </div>
-    );
-  }
 }

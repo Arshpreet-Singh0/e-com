@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import prisma from "../config/prisma";
 import productSchema from "../validations/productValidation";
 import generateEmbedding from "../config/embeddings"
+import { getSimilarProducts } from "../utils/getSimilarProducts";
 
 export const createProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -97,30 +98,27 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
     try {
         const {productId} = req.params;
 
-        async function getSimilarProducts(productId : string) {
-            const product = await prisma.product.findUnique({ where: { id: productId } });
-        
-            if(!product) return;
-          
-            const similarProducts = await prisma.$queryRaw`
-              SELECT id, name, category, images,
-                     cosine_similarity(embedding, ${JSON.stringify(product.embedding)}::jsonb) AS similarity
-              FROM "Product"
-              WHERE id != ${productId}
-              ORDER BY similarity DESC
-              LIMIT 5;
-            `;
-          
-            return similarProducts;
-          }
-          
-          // Call this when showing product details
-          const result = await getSimilarProducts("88ad952a-d557-4109-a37d-6aeb4f248edd");
-          
+        const product = await prisma.product.findUnique({
+            where : {
+                id : productId
+            },
+        });
 
-        res.status(200).json(result);
+        res.status(200).json(product);
     } catch (error) {
         next(error);
+        
+    }
+}
+
+export const getProductRecomendations = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
+    try {
+        const {productId} = req.params;
+
+        const result = await getSimilarProducts(productId);
+          
+        res.status(200).json(result);
+    } catch (error) {
         
     }
 }

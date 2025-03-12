@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-const CategoryEnum = z.enum(["Men", "Women"]);
-
 const productSchema = z.object({
   name: z.string().min(1, { message: "Product name is required" }),
 
@@ -38,7 +36,7 @@ const productSchema = z.object({
       message: "Discount must be a non-negative number",
     }).optional(),
 
-    category : CategoryEnum
+    category : z.string(),
 });
 
 export default productSchema;
