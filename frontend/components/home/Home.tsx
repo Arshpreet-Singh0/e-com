@@ -7,7 +7,7 @@ function HomePage() {
       {/* Hero Section */}
       <div className="relative ">
         <div className="h-[600px] w-full bg-cover bg-center" style={{
-    backgroundImage: 'url("https://images.unsplash.com/photo-1582418702059-97ebafb35d09?auto=format&fit=crop&q=80")',
+    backgroundImage: 'url("https://images.unsplash.com/photo-1612949677014-47e1623c993b?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTU5fHxkZW5pbSUyMGplYW5zfGVufDB8fDB8fHww")',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
   }}>

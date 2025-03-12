@@ -51,6 +51,9 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 export const getProducts = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
     try {
         const  products = await prisma.product.findMany({
+            where : {
+                disabled : false
+            },
             take : 6,
             orderBy : {
                 createdAt : 'desc'

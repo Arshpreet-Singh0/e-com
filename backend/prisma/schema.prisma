@@ -37,6 +37,7 @@ model Product {
   tags        String[] // SEO-friendly tags (e.g., ["denim", "jeans", "slim fit"])
   discount    Float?   // Optional discount percentage
   embedding   Json  @db.JsonB
+  disabled    Boolean  @default(false)
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
