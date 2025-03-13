@@ -2,6 +2,7 @@
 
 import { BACKEND_URL } from "@/config/config";
 import { clearUser } from "@/lib/store/features/authSlice";
+import { toggleCartDrawer } from "@/lib/store/features/cartSlice";
 import { openLoginModal } from "@/lib/store/features/loginModalSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import axios from "axios";
@@ -24,6 +25,10 @@ export default function Navbar() {
   const [menuTimeout, setMenuTimeout] = useState<NodeJS.Timeout | null>(null);
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((store) => store.auth);
+
+  const handleOpenCart = () => {
+      dispatch(toggleCartDrawer());
+  }
 
   const handleLogOut = async () => {
     try {
@@ -133,7 +138,7 @@ export default function Navbar() {
             <button className="p-2">
               <Heart size={24} />
             </button>
-            <button className="p-2">
+            <button className="p-2" onClick={handleOpenCart}>
               <ShoppingCart size={24} />
             </button>
             {user !== null ? (

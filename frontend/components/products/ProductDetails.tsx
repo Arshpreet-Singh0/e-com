@@ -4,12 +4,25 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "@/types/types";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { addToCart } from "@/lib/store/features/cartSlice";
 
 const ProductDetailsPage = ({ product }: { product: Product }) => {
 
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
+  const dispatch = useAppDispatch();
   const router = useRouter();
+
+  const {isCartOpen, items} = useAppSelector((store) => store.cart);
+  console.log(items);
+  
+
+  const handleAddToCart = (product : any) => {
+    product.quantity = quantity;
+    product.size = selectedSize;
+    dispatch(addToCart(product));
+  }
 
   const productImages = [
     product?.images?.[0],
@@ -95,7 +108,7 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
 
             {/* Add to Cart & Wishlist */}
             <div className="space-y-4">
-              <button className="w-full bg-black text-white py-4 rounded-md hover:bg-gray-800 flex items-center justify-center space-x-2">
+              <button className="w-full bg-black text-white py-4 rounded-md hover:bg-gray-800 flex items-center justify-center space-x-2" onClick={() => handleAddToCart(product)}>
                 <ShoppingCart size={20} />
                 <span>Add to Cart</span>
               </button>

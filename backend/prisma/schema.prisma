@@ -63,4 +63,5 @@ model CartItem {
   product   Product @relation(fields: [productId], references: [id])
   productId String
   quantity  Int     @default(1)
+  size      String? // Optional size
 }
