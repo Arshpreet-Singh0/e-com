@@ -14,14 +14,17 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  name       String?
-  phone      String   @unique
-  role       String   @default("user") // "admin" or "user"
-  otp        String?  // OTP for authentication
-  otpExpiry  DateTime? // Expiry time for OTP
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String    @id @default(uuid())
+  name      String?
+  phone     String    @unique
+  role      String    @default("user") // "admin" or "user"
+  otp       String? // OTP for authentication
+  otpExpiry DateTime? // Expiry time for OTP
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  cartId String? @unique
+  Cart   Cart?
 }
 
 model Product {
@@ -31,14 +34,33 @@ model Product {
   price       Float
   stock       Int      @default(0)
   images      String[] // Array of image URLs
-  category    String   //men or women
-  brand       String?  // Optional brand name
+  category    String //men or women
+  brand       String? // Optional brand name
   sizes       String[] // Available sizes (e.g., ["S", "M", "L", "XL"])
   tags        String[] // SEO-friendly tags (e.g., ["denim", "jeans", "slim fit"])
-  discount    Float?   // Optional discount percentage
-  embedding   Json  @db.JsonB
+  discount    Float? // Optional discount percentage
+  embedding   Json     @db.JsonB
   disabled    Boolean  @default(false)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  CartItem  CartItem[]
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String     @unique // Ensures one cart per user
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String  @id @default(uuid())
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId    String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int     @default(1)
 }

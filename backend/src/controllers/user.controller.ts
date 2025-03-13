@@ -41,11 +41,13 @@ export const sendOtp = async (req: Request, res: Response, next: NextFunction) :
       data: { otp: otp.toString(), otpExpiry },
     });
 
-    await twilioClient.messages.create({
-      body: `Your OTP for verification: ${otp}`,
-      from: "+12694420564",
-      to: `+91${phoneStr}`,
-    });
+    // await twilioClient.messages.create({
+    //   body: `Your OTP for verification: ${otp}`,
+    //   from: "+12694420564",
+    //   to: `+91${phoneStr}`,
+    // });
+    console.log(otp);
+    
 
     res.status(200).json({ message: "OTP sent successfully." , success : true});
   } catch (error) {
