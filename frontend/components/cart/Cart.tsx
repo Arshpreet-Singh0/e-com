@@ -48,7 +48,7 @@ const onClose = () => {
                   <div className="mt-8">
                     <div className="flow-root">
                       <ul className="divide-y divide-gray-200">
-                        {items.map((item) => (
+                        {items.map((item : any) => (
                           <li key={item.id} className="py-6 flex">
                             <div className="flex-shrink-0 w-24 h-24 overflow-hidden rounded-md">
                               <img

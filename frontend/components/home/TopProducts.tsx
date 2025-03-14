@@ -8,7 +8,9 @@ const getTopProducts = async () => {
         const res = await axios.get(`${BACKEND_URL}/api/v1/product`);
         return res.data?.products;
     } catch (error) {
+        console.log(error);
         return [];
+        
     }
 };
 

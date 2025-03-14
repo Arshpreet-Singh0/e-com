@@ -1,23 +1,39 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { createWrapper } from "next-redux-wrapper";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import { persistStore, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage"; // Uses localStorage for persistence
 import authReducer from "./features/authSlice";
 import modalReducer from "./features/loginModalSlice";
 import cartReducer from "./features/cartSlice";
 
-// Create the Redux store
-export const makeStore = () =>
-  configureStore({
-    reducer: {
-      auth: authReducer,
-      modal : modalReducer,
-      cart : cartReducer
-    },
-  });
+// Redux Persist Configuration
+const persistConfig = {
+  key: "root",
+  storage,
+  whitelist: ["auth", "cart"], // Persist only auth & cart states
+};
 
-// Infer the `RootState` and `AppDispatch` types
-export type AppStore = ReturnType<typeof makeStore>;
-export type AppState = ReturnType<AppStore["getState"]>;
-export type AppDispatch = AppStore["dispatch"];
+// Combine reducers
+const rootReducer = combineReducers({
+  auth: authReducer,
+  modal: modalReducer, // Not persisting modal state
+  cart: cartReducer,
+});
 
-// Create a Next.js Redux wrapper
-export const wrapper = createWrapper<AppStore>(makeStore);
+// Wrap root reducer with persistReducer
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+// ** Create a SINGLE store instance **
+export const store = configureStore({
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false, // Required for Redux Persist
+    }),
+});
+
+// ** Create Persistor for Redux Persist **
+export const persistor = persistStore(store);
+
+// Infer types for TypeScript
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

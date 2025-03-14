@@ -2,7 +2,6 @@ import ProductDetails from "@/components/products/ProductDetails";
 import { SimilarProducts } from "@/components/products/SimilarProducts";
 import { BACKEND_URL } from "@/config/config";
 import axios from "axios";
-import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
 // Lazy load the SimilarProducts component
@@ -15,7 +14,9 @@ const getProducts = async (id: string) => {
   try {
     const res = await axios.get(`${BACKEND_URL}/api/v1/product/${id}`);
     return res.data;
-  } catch (error) {
+  }
+  catch (error) {
+    console.log(error);
     return null;
   }
 };

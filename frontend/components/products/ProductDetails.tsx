@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "@/types/types";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
@@ -12,7 +11,6 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const dispatch = useAppDispatch();
-  const router = useRouter();
 
   const {isCartOpen, items} = useAppSelector((store) => store.cart);
   console.log(items);
