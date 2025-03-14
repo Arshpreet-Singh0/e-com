@@ -4,22 +4,30 @@ import React, { useState } from "react";
 import { Heart, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "@/types/types";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { addToCart } from "@/lib/store/features/cartSlice";
+import { addToCart, addToCartServer } from "@/lib/store/features/cartSlice";
+import { toast } from "sonner";
 
 const ProductDetailsPage = ({ product }: { product: Product }) => {
 
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const dispatch = useAppDispatch();
-
-  const {isCartOpen, items} = useAppSelector((store) => store.cart);
-  console.log(items);
+  const {user} = useAppSelector((store)=>store.auth);
   
-
   const handleAddToCart = (product : any) => {
-    product.quantity = quantity;
-    product.size = selectedSize;
-    dispatch(addToCart(product));
+    
+    if(!selectedSize){
+      toast.error('Please Select a size');
+      return;
+    }
+    if(user){
+      dispatch(addToCartServer({id:product.id, quantity, size : selectedSize}))
+    }
+    else{
+      dispatch(addToCart({quantity, size : selectedSize, product}));
+      toast.success("Product added to cart.")
+    }
+
   }
 
   const productImages = [

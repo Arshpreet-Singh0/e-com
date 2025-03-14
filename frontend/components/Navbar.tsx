@@ -2,7 +2,7 @@
 
 import { BACKEND_URL } from "@/config/config";
 import { clearUser } from "@/lib/store/features/authSlice";
-import { toggleCartDrawer } from "@/lib/store/features/cartSlice";
+import { clearCart, toggleCartDrawer } from "@/lib/store/features/cartSlice";
 import { openLoginModal } from "@/lib/store/features/loginModalSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import axios from "axios";
@@ -38,6 +38,7 @@ export default function Navbar() {
       if (res?.data?.success) {
         toast.success(res?.data?.message);
         dispatch(clearUser());
+        dispatch(clearCart());
       }
     } catch (error) {
       console.error("Logout error:", error);

@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Heart, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { Product } from '@/types/types';
 import { useRouter } from 'next/navigation';
 
@@ -21,9 +21,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           className="h-full w-full object-cover object-center group-hover:opacity-75 transition-opacity"
         />
         <div className="absolute top-4 right-4 space-y-2">
-          <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors">
-            <Heart size={20} />
-          </button>
           <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors">
             <ShoppingCart size={20} />
           </button>

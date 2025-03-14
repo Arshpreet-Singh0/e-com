@@ -30,13 +30,15 @@ export const addToCart = async (
 ): Promise<void> => {
   try {
     const userId = req.userId;
+    console.log(req.body);
+    
 
     const parsedData = addToCartSchema.safeParse(req.body);
     if (!parsedData.success) {
       res.status(400).json({ message: "Invalid data" });
       return;
     }
-    const { productId, quantity } = parsedData.data;
+    const { productId, quantity, size } = parsedData.data;
 
     if (!userId) {
       res.status(401).json({ message: "Not authenticated" });
@@ -48,14 +50,13 @@ export const addToCart = async (
     }
 
     const cart = await getOrCreateCart(userId);
-
     const existingItem = await prisma.cartItem.findFirst({
-      where: { cartId: cart.id, productId },
+      where: { cartId: cart.id, productId , size},
     });
 
     if (existingItem) {
       await prisma.cartItem.update({
-        where: { id: existingItem.id },
+        where: { id: existingItem.id , size},
         data: { quantity: existingItem.quantity + quantity },
       });
     } else {
@@ -64,6 +65,7 @@ export const addToCart = async (
           cartId: cart.id,
           productId,
           quantity,
+          size
         },
       });
     }
@@ -80,7 +82,11 @@ export const addToCart = async (
       }} } } }, // Ensure product details are included
     });
 
-    res.status(200).json(updatedCart);
+    res.status(200).json({
+      cart : updatedCart,
+      message : "Product added to cart",
+      success : true,
+    });
   } catch (error) {
     next(error);
   }
@@ -97,22 +103,23 @@ export const removeFromCart = async (
       res.status(401).json({ message: "Not authenticated" });
       return;
     }
-    const {productId} = req.params;
+    const {cartItemId} = req.params;
     const cart = await getOrCreateCart(userId);
+    
 
-    await prisma.cartItem.deleteMany({
-      where: { cartId: cart.id, productId },
+    await prisma.cartItem.delete({
+      where: { cartId: cart.id, id : cartItemId },
     });
-
     const updatedCart = await prisma.cart.findUnique({
         where: { id: cart.id },
         include: { items: { include: { product: true } } }, // Ensure product details are included
       });
   
-      res.status(200).json(updatedCart);await prisma.cart.findUnique({
-      where: { id: cart.id },
-      include: { items: { include: { product: true } } },
-    });
+      res.status(200).json({
+        cart : updatedCart,
+        message : "Product removed from cart",
+        success : true,
+      });
   } catch (error) {
     next(error);
   }
@@ -127,3 +134,68 @@ async function getOrCreateCart(userId: string) {
     include: { items: { include: { product: true } } },
   });
 }
+
+export const syncCart = async (req : Request, res: Response, next : NextFunction) : Promise<void> => {
+  try {
+    const { items } = req.body;
+    const userId = req.userId;
+
+    if (!userId || !Array.isArray(items)) {
+      res.status(400).json({ message: "Invalid request data" });
+      return;
+    }
+
+    // Fetch user's cart along with existing items
+    let cart = await getOrCreateCart(userId);
+
+    const cartId = cart.id;
+    const existingItemsMap = new Map(
+      cart.items.map((item) => [item.productId, item])
+    );
+
+    const newItems: { cartId: string; productId: string; quantity: number; size?: string }[] = [];
+    const updatedItems: { id: string; quantity: number; size?: string }[] = [];
+    const itemsToDelete: string[] = [];
+
+    // Compare and prepare batch operations
+    items.forEach(({ product, quantity, size }) => {
+      if (quantity === 0) {
+        if (existingItemsMap.has(product?.id)) {
+          itemsToDelete.push(product?.id);
+        }
+      } else if (existingItemsMap.has(product?.id)) {
+        const existingItem = existingItemsMap.get(product?.id)!;
+        if (existingItem.quantity !== quantity || existingItem.size !== size) {
+          updatedItems.push({ id: existingItem.id, quantity, size });
+        }
+      } else {
+        newItems.push({ cartId, productId : product?.id, quantity, size });
+      }
+    });
+
+    // Execute all database operations in a single transaction
+    await prisma.$transaction([
+      ...newItems.map((item) => prisma.cartItem.create({ data: item })),
+      ...updatedItems.map((item) =>
+        prisma.cartItem.update({
+          where: { id: item.id },
+          data: { quantity: item.quantity, size: item.size },
+        })
+      ),
+      prisma.cartItem.deleteMany({
+        where: { cartId, productId: { in: itemsToDelete } },
+      }),
+    ]);
+
+    // Fetch updated cart in a single query
+    const updatedCart = await prisma.cart.findUnique({
+      where: { id: cart.id },
+      include: { items: { include: { product: true } } }, // Ensure product details are included
+    });
+
+    res.json({ message: "Cart synced successfully", cart: updatedCart });
+  } catch (error) {
+    console.error("Cart sync error:", error);
+    next(error);
+  }
+};

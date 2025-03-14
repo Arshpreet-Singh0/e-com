@@ -9,6 +9,7 @@ import { BACKEND_URL } from '@/config/config';
 import { toast } from 'sonner';
 import { setUser } from '@/lib/store/features/authSlice';
 import { handleAxiosError } from '@/utils/handleAxiosError';
+import { syncCart } from '@/lib/store/features/cartSlice';
 
 const LoginModal = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
@@ -16,6 +17,8 @@ const LoginModal = () => {
   const [name, setName] = useState('');
   const [otp, setOtp] = useState('');
   const dispatch = useAppDispatch();
+  const {items} = useAppSelector(store=>store.cart);
+  
 
   const {isLoginModalOpen} = useAppSelector(store=>store.modal);
 
@@ -58,6 +61,7 @@ const LoginModal = () => {
         toast.success(res?.data?.message);
         dispatch(setUser(res?.data?.user));
         dispatch(closeLoginModal());
+        dispatch(syncCart(items));
       }
       
       

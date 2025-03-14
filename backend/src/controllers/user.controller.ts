@@ -4,10 +4,16 @@ import twilioClient from "../config/twillio";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from '../config/secret';
+import { userSchema } from "../validations/userValidation";
 
 export const sendOtp = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
   try {
-    const { phone, name } = req.body;
+    const parsedData = userSchema.safeParse(req.body);
+    if(parsedData.error){
+     res.status(400).json({message: "Invalid name or phone number.", sucess : false});
+      return;
+    }
+    const { phone, name } = parsedData.data;
 
     if (!phone) {
       res.status(400).json({ message: "Phone number is required." });

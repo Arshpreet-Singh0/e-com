@@ -3,7 +3,7 @@
 import React from 'react';
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { toggleCartDrawer } from '@/lib/store/features/cartSlice';
+import { CartItem, decreaseQuantity, deleteCartItemServer, increaseQuantity, Product, removeFromCart, toggleCartDrawer } from '@/lib/store/features/cartSlice';
 
 
 const CartDrawer = () => {
@@ -11,10 +11,25 @@ const CartDrawer = () => {
 const dispatch = useAppDispatch();
 
 const {isCartOpen, items} = useAppSelector((store) => store.cart);
+const {user} = useAppSelector(store=>store.auth);
+console.log(items);
+
+
+const totalPrice: number = items?.reduce(
+  (total : number , item : CartItem) => total + item.product?.price * item.quantity,
+  0
+);
 
 
 const onClose = () => {
     dispatch(toggleCartDrawer());
+}
+
+const handleIncreaseQuantity = (id : string, size : string) => {
+  dispatch(increaseQuantity({id, size}));
+}
+const handleDecreaseQuantity = (id : string, size : string) => {
+  dispatch(decreaseQuantity({id, size}));
 }
 
   if (!isCartOpen) return null;
@@ -48,59 +63,53 @@ const onClose = () => {
                   <div className="mt-8">
                     <div className="flow-root">
                       <ul className="divide-y divide-gray-200">
-                        {items.map((item : any) => (
-                          <li key={item.id} className="py-6 flex">
+                        {items.map((item : any, idx:number) => (
+                          <li key={idx} className="py-6 flex">
                             <div className="flex-shrink-0 w-24 h-24 overflow-hidden rounded-md">
                               <img
-                                src={item.images?.[0]}
+                                src={item?.product?.images?.[0]}
                                 alt={item.name}
                                 className="w-full h-full object-cover"
                               />
                             </div>
 
                             <div className="ml-4 flex-1 flex flex-col">
-                              <div>
                                 <div className="flex justify-between text-base font-medium text-gray-900">
-                                  <h3>{item.name}</h3>
-                                  <p className="ml-4">${(item.price * item.quantity).toFixed(2)}</p>
+                                  <h3>{item.product.name}</h3>
+                                  <p className="ml-4">₹{(item.product.price * item.quantity).toFixed(2)}</p>
                                 </div>
-                                <div className="mt-1 text-sm text-gray-500">
-                                  {/* <p>Size: {item.size}</p> */}
-                                  {/* <div className="flex items-center">
-                                    <span>Color:</span>
-                                    <div
-                                      className="ml-2 w-4 h-4 rounded-full border border-gray-300"
-                                      style={{ backgroundColor: item.selectedColor }}
-                                    /> */}
-                                  </div>
-                                </div>
-                              </div>
-                              
                               <div className="flex-1 flex items-end justify-between text-sm">
+                                  <div>
+                                <div>
+                                <p>Size: {item.size}</p>
+                                </div>
                                 <div className="flex items-center border rounded-lg">
                                   <button
-                                    // onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                    className="p-2"
+                                    onClick={() => handleDecreaseQuantity(item?.product?.id, item.size)}
+                                    className="p-2 cursor-pointer"
                                   >
                                     <Minus size={16} />
                                   </button>
                                   <span className="px-4 py-2">{item.quantity}</span>
                                   <button
-                                    // onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                    className="p-2"
+                                    onClick={() => handleIncreaseQuantity(item?.product?.id, item.size)}
+                                    className="p-2 cursor-pointer"
                                   >
                                     <Plus size={16} />
                                   </button>
                                 </div>
+                                  </div>
 
                                 <button
                                   type="button"
-                                //   onClick={() => removeItem(item.id)}
-                                  className="font-medium text-red-600 hover:text-red-500"
+                                  onClick={() => user!=null ? dispatch(deleteCartItemServer(item.id)) : dispatch(removeFromCart({id : item?.product?.id, size : item?.size}))}
+                                  className="font-medium text-red-600 hover:text-red-500 cursor-pointer"
                                 >
                                   Remove
                                 </button>
                               </div>
+                              </div>
+                              
                           </li>
                         ))}
                       </ul>
@@ -113,8 +122,8 @@ const onClose = () => {
             {items.length > 0 && (
               <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
                 <div className="flex justify-between text-base font-medium text-gray-900 mb-4">
-                  {/* <p>Subtotal ({totalItems} items)</p> */}
-                  {/* <p>${totalPrice.toFixed(2)}</p> */}
+                  <p>Subtotal ({items.length} items)</p> 
+                  <p>₹{totalPrice.toFixed(2)}</p>
                 </div>
                 <button
                 //   onClick={onCheckout}
