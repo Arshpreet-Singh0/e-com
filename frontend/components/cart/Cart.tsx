@@ -12,8 +12,6 @@ const dispatch = useAppDispatch();
 
 const {isCartOpen, items} = useAppSelector((store) => store.cart);
 const {user} = useAppSelector(store=>store.auth);
-console.log(items);
-
 
 const totalPrice: number = items?.reduce(
   (total : number , item : CartItem) => total + item.product?.price * item.quantity,

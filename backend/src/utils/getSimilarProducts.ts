@@ -17,6 +17,7 @@ export async function getSimilarProducts(productId: string) {
       WHERE id != ${productId}
       AND category = ${product.category} -- Only match within the same category
       AND ABS(price - ${product.price}) < 50 -- Only match within a price range
+      AND disabled = false
       ORDER BY similarity DESC
       LIMIT 5;
     `;

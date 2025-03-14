@@ -48,7 +48,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
     }
 };
 
-export const getProducts = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
+export const getTopProducts = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
     try {
         const  products = await prisma.product.findMany({
             where : {
@@ -123,5 +123,15 @@ export const getProductRecomendations = async (req: Request, res: Response, next
         res.status(200).json(result);
     } catch (error) {
         
+    }
+};
+
+export const getAllProducts = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
+    try {
+        const products = await prisma.product.findMany({});
+
+        res.status(200).json(products)
+    } catch (error) {
+        next(error);
     }
 }

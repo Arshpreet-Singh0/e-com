@@ -5,12 +5,11 @@ import { Product } from "@/types/types";
 
 const getTopProducts = async () => {
     try {
-        const res = await axios.get(`${BACKEND_URL}/api/v1/product`);
+        const res = await axios.get(`${BACKEND_URL}/api/v1/product/topproducts`);
         return res.data?.products;
     } catch (error) {
         console.log(error);
         return [];
-        
     }
 };
 

@@ -16,6 +16,7 @@ import {
   User,
   LogOut,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -24,6 +25,7 @@ export default function Navbar() {
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
   const [menuTimeout, setMenuTimeout] = useState<NodeJS.Timeout | null>(null);
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { user } = useAppSelector((store) => store.auth);
 
   const handleOpenCart = () => {
@@ -121,6 +123,7 @@ export default function Navbar() {
                         <li
                           key={index}
                           className="p-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={()=>router.push(`/products?search=${item}`)}
                         >
                           {item}
                         </li>
