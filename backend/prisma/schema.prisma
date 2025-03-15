@@ -16,6 +16,7 @@ datasource db {
 model User {
   id        String    @id @default(uuid())
   name      String?
+  email     String?
   phone     String    @unique
   role      String    @default("user") // "admin" or "user"
   otp       String? // OTP for authentication
@@ -36,7 +37,7 @@ model Product {
   images      String[] // Array of image URLs
   category    String //men or women
   brand       String? // Optional brand name
-  sizes       String[] // Available sizes (e.g., ["S", "M", "L", "XL"])
+  sizes       Json // Available sizes (e.g., ["S", "M", "L", "XL"])
   tags        String[] // SEO-friendly tags (e.g., ["denim", "jeans", "slim fit"])
   discount    Float? // Optional discount percentage
   embedding   Json     @db.JsonB

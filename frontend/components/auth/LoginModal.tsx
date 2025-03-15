@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { setUser } from '@/lib/store/features/authSlice';
 import { handleAxiosError } from '@/utils/handleAxiosError';
 import { syncCart } from '@/lib/store/features/cartSlice';
+import Image from 'next/image';
 
 const LoginModal = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
@@ -74,8 +75,6 @@ const LoginModal = () => {
       handleAxiosError(error);
     }
   }
-
-
   const onClose = ()=>{
     dispatch(closeLoginModal());
   }
@@ -84,10 +83,12 @@ const LoginModal = () => {
     <div className="fixed inset-0 bg-black/50 shadow-2xl bg-opaci flex items-center justify-center z-50">
       <div className="bg-white w-full max-w-4xl rounded-lg overflow-hidden flex">
         <div className="hidden md:block w-1/2">
-          <img
-            src="https://images.unsplash.com/photo-1617922001439-4a2e6562f328?auto=format&fit=crop&q=80"
+          <Image
+            src="https://images.unsplash.com/photo-1519235014485-3a25f3ce0b30?q=80&w=1536&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Model wearing denim"
             className="w-full h-full object-cover"
+            height={100}
+            width={100}
           />
         </div>
 
@@ -137,7 +138,7 @@ const LoginModal = () => {
               </button>
             </form>
           ) : (
-            <form className="space-y-4" onSubmit={handleSubmitOTP}>
+            <div className="space-y-4" >
               <div>
                 <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
                   Enter OTP
@@ -148,25 +149,26 @@ const LoginModal = () => {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="Enter 4digit OTP"
+                  placeholder="Enter 4 digit OTP"
                   maxLength={6}
                   required
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors"
+                className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors cursor-pointer"
+                onClick={handleSubmitOTP}
               >
                 Verify OTP
               </button>
               <button
                 type="button"
                 onClick={() => setStep('phone')}
-                className="w-full text-gray-600 text-sm hover:text-gray-800"
+                className="w-full text-gray-600 text-sm hover:text-gray-800 cursor-pointer"
               >
                 Back to phone number
               </button>
-            </form>
+            </div>
           )}
 
           <div className="mt-6 text-center text-sm text-gray-600">

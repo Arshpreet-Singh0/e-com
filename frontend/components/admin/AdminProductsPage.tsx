@@ -7,6 +7,7 @@ import { BACKEND_URL } from "@/config/config";
 import axios from "axios";
 import { toast } from "sonner";
 import { handleAxiosError } from "@/utils/handleAxiosError";
+import Image from "next/image";
 
 const AdminProductsPage = ({products} : {
     products : Product[]
@@ -45,8 +46,8 @@ const AdminProductsPage = ({products} : {
         </div>
         <select className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent">
           <option>All Categories</option>
-          <option>Men's Jeans</option>
-          <option>Women's Jeans</option>
+          <option>{"Men's Jeans"}</option>
+          <option>{"Women's Jeans"}</option>
           <option>Sale Items</option>
         </select>
       </div>
@@ -63,7 +64,13 @@ const AdminProductsPage = ({products} : {
               Product
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Stock
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Price
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Discount
             </th>
             {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Colors
@@ -79,10 +86,12 @@ const AdminProductsPage = ({products} : {
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                   <div className="h-16 w-16 flex-shrink-0">
-                    <img
+                    <Image
                       src={product.images?.[0]}
                       alt={product.name}
                       className="h-16 w-16 object-cover rounded"
+                      height={100}
+                      width={100}
                     />
                   </div>
                   <div className="ml-4">
@@ -96,7 +105,13 @@ const AdminProductsPage = ({products} : {
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">${product.price}</div>
+                <div className="text-sm text-gray-900">{product?.stock}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">₹{product?.price}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">{product?.stock || 0} % </div>
               </td>
               {/* <td className="px-6 py-4 whitespace-nowrap"> */}
                 {/* <div className="flex space-x-1">

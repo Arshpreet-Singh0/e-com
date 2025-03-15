@@ -53,3 +53,4 @@ export default async function RootLayout({
   );
 }
 
+export const dynamic = "force-dynamic"; // Add this to the top of RootLayout

@@ -4,6 +4,7 @@ import React from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { Product } from '@/types/types';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface ProductCardProps {
   product: Product;
@@ -15,10 +16,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <div className="group relative">
       <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100" onClick={()=>router.push(`/product/${product?.id}`)}>
-        <img
+        <Image
           src={product?.images?.[0]}
           alt={product.name}
           className="h-full w-full object-cover object-center group-hover:opacity-75 transition-opacity"
+          height={500}
+          width={500}
+          unoptimized
         />
         <div className="absolute top-4 right-4 space-y-2">
           <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors">

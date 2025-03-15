@@ -15,7 +15,7 @@ const ProtectedRoutes = () => {
             toast.error("You are not authorized to access this page");
             router.push("/");
         }
-    },[user]);
+    },[user, router]);
   return (
     null
   )

@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Upload, Plus, X } from 'lucide-react';
-import { toast } from 'sonner';
-import axios from 'axios';
-import { BACKEND_URL } from '@/config/config';
-import { handleAxiosError } from '@/utils/handleAxiosError';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import { Upload, X } from "lucide-react";
+import { toast } from "sonner";
+import axios from "axios";
+import { BACKEND_URL } from "@/config/config";
+import { handleAxiosError } from "@/utils/handleAxiosError";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface Product {
   name: string;
@@ -16,17 +17,24 @@ interface Product {
   images: string[]; // Array of image URLs
   tags: string[]; // Array of tags
   category: string;
-  sizes: string[]; // Array of sizes (e.g., ["S", "M", "L"])
+  sizes: {
+    size: string;
+    quantity: number;
+  }[]; // Array of sizes (e.g., ["S", "M", "L"])
   stock: number;
 }
 
 const NewProductForm: React.FC = () => {
   const [images, setImages] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
-  const [sizes, setSizes] = useState<string>("");
   const [tags, setTags] = useState<string>("");
-  const [uploadProgress, setUploadProgress] = useState(0);
+  // const [uploadProgress, setUploadProgress] = useState(0);
   const router = useRouter();
+  const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
+
+  const [sizes, setSizes] = useState(
+    sizeOptions.map((size) => ({ size, quantity: 0 }))
+  );
 
   const [product, setProduct] = useState<Product>({
     name: "",
@@ -46,14 +54,15 @@ const NewProductForm: React.FC = () => {
       const maxSize = 5 * 1024 * 1024; // 5MB
 
       for (const file of selectedFiles) {
-        
         if (file.size > maxSize) {
           toast.error(`File size must not exceed 5MB.`);
           return;
         }
       }
 
-      const newImages = Array.from(selectedFiles).map(file => URL.createObjectURL(file));
+      const newImages = Array.from(selectedFiles).map((file) =>
+        URL.createObjectURL(file)
+      );
       setImages([...images, ...newImages]);
       setFiles((f) => [...f, ...selectedFiles]);
     }
@@ -62,9 +71,13 @@ const NewProductForm: React.FC = () => {
   const getSignedURLs = async () => {
     const fileNames = files.map((f) => f.name);
     try {
-      const res = await axios.post(`${BACKEND_URL}/api/v1/product/generate-urls`, { fileNames }, {
-        withCredentials: true
-      });
+      const res = await axios.post(
+        `${BACKEND_URL}/api/v1/product/generate-urls`,
+        { fileNames },
+        {
+          withCredentials: true,
+        }
+      );
 
       if (res?.data?.success) {
         return res.data?.urls;
@@ -73,7 +86,7 @@ const NewProductForm: React.FC = () => {
       console.log(error);
       handleAxiosError(error);
     }
-  }
+  };
 
   const uploadFiles = async (preSignedUrls: { url: string }[]) => {
     try {
@@ -83,10 +96,15 @@ const NewProductForm: React.FC = () => {
           headers: {
             "Content-Type": file.type, // Ensure proper file type
           },
-          onUploadProgress: (progressEvent : any) => {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setUploadProgress(percentCompleted);
-          },
+          // onUploadProgress: (progressEvent: {
+          //   loaded : number;
+          //   total : number;
+          // }) => {
+          //   const percentCompleted = Math.round(
+          //     (progressEvent.loaded * 100) / progressEvent.total
+          //   );
+          //   setUploadProgress(percentCompleted);
+          // },
         };
 
         const response = await axios.put(url, file, config);
@@ -113,9 +131,17 @@ const NewProductForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    product.sizes = sizes.split(",").map((s) => s.trim());
+    product.sizes = sizes;
     product.tags = tags.split(",").map((t) => t.trim());
-    if (!product.name || !product.category || !product.description || !product.price || sizes.length == 0 || tags.length == 0 || files.length == 0) {
+
+    if (
+      !product.name ||
+      !product.category ||
+      !product.description ||
+      !product.price ||
+      tags.length == 0 ||
+      files.length == 0
+    ) {
       toast.error("All fields are required.");
       return;
     }
@@ -135,12 +161,12 @@ const NewProductForm: React.FC = () => {
       product.images = getImageUrls(urls);
 
       const res = await axios.post(`${BACKEND_URL}/api/v1/product`, product, {
-        withCredentials: true
+        withCredentials: true,
       });
 
       if (res?.data?.success) {
         toast.success(res?.data?.message);
-        router.push('/admin');
+        router.push("/admin");
       }
     } catch (error) {
       handleAxiosError(error);
@@ -150,12 +176,23 @@ const NewProductForm: React.FC = () => {
     }
   };
 
+  const handleSizeChange = (index: number, value: string) => {
+    const newSizes = [...sizes];
+    newSizes[index].quantity = Number(value);
+    setSizes(newSizes);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow md:p-8 p-4">
-      <form className="space-y-8 md:w-[75%] xl:w-[60%] mx-auto border rounded-xl p-8 bg-gray-50 shadow-xl" onSubmit={handleSubmit}>
+      <form
+        className="space-y-8 md:w-[75%] xl:w-[60%] mx-auto border rounded-xl p-8 bg-gray-50 shadow-xl"
+        onSubmit={handleSubmit}
+      >
         {/* Basic Information */}
         <div className="space-y-6">
-          <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
+          <h3 className="text-lg font-medium text-gray-900">
+            Basic Information
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -166,8 +203,10 @@ const NewProductForm: React.FC = () => {
                 className="mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="Enter product name"
                 value={product.name}
-                name='name'
-                onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}
+                name="name"
+                onChange={(e) =>
+                  setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))
+                }
               />
             </div>
             <div>
@@ -182,9 +221,14 @@ const NewProductForm: React.FC = () => {
                   type="number"
                   className="block w-full pl-7 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="0.00"
-                  name='price'
+                  name="price"
                   value={product.price}
-                  onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}
+                  onChange={(e) =>
+                    setProduct((p) => ({
+                      ...p,
+                      [e.target.name]: e.target.value,
+                    }))
+                  }
                 />
               </div>
             </div>
@@ -194,8 +238,16 @@ const NewProductForm: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700">
                 Category
               </label>
-              <select className='form-select mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent' name='category' onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}>
-                <option defaultValue={""} value={product.category}>Select category</option>
+              <select
+                className="form-select mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                name="category"
+                onChange={(e) =>
+                  setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))
+                }
+              >
+                <option defaultValue={""} value={product.category}>
+                  Select category
+                </option>
                 <option value="Men">Men</option>
                 <option value="Women">Women</option>
                 <option value="Sale">Sale</option>
@@ -213,9 +265,14 @@ const NewProductForm: React.FC = () => {
                   type="number"
                   className="block w-full pl-7 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="10"
-                  name='discount'
+                  name="discount"
                   value={product.discount}
-                  onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}
+                  onChange={(e) =>
+                    setProduct((p) => ({
+                      ...p,
+                      [e.target.name]: e.target.value,
+                    }))
+                  }
                 />
               </div>
             </div>
@@ -228,16 +285,18 @@ const NewProductForm: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {images.map((image, index) => (
               <div key={index} className="relative aspect-square">
-                <img
+                <Image
                   src={image}
                   alt={`Product ${index + 1}`}
                   className="w-full h-full object-cover rounded-lg"
+                  height={100}
+                  width={100}
                 />
                 <button
                   type="button"
                   onClick={() => {
                     setImages(images.filter((_, i) => i !== index));
-                    setFiles(files.filter((_, i) => i !== index))
+                    setFiles(files.filter((_, i) => i !== index));
                   }}
                   className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-100"
                 >
@@ -258,8 +317,8 @@ const NewProductForm: React.FC = () => {
             </label>
           </div>
           <div>
-            <progress value={uploadProgress} max="100" />
-            <span>Uploading... {uploadProgress}%</span>
+            {/* <progress value={uploadProgress} max="100" />
+            <span>Uploading... {uploadProgress}%</span> */}
           </div>
         </div>
 
@@ -270,40 +329,39 @@ const NewProductForm: React.FC = () => {
             rows={4}
             className="block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
             placeholder="Enter product description..."
-            name='description'
+            name="description"
             value={product.description}
-            onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}
+            onChange={(e) =>
+              setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))
+            }
           />
         </div>
 
         {/* Sizes and Stock */}
         <div className="space-y-6">
-          <h3 className="text-lg font-medium text-gray-900">Sizes (comma separated)</h3>
-          <div className="w-full">
-            <input
-              type="text"
-              className="mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-              placeholder="Enter sizes"
-              value={sizes}
-              onChange={(e) => setSizes(e.target.value)}
-            />
+          <h3 className="text-lg font-medium text-gray-900">Sizes and Stock</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {sizes.map((item, index) => (
+              <div key={item.size} className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {item.size}
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={item.quantity}
+                  onChange={(e) => handleSizeChange(index, e.target.value)}
+                  className="block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  placeholder="0"
+                />
+              </div>
+            ))}
           </div>
         </div>
         <div className="space-y-6">
-          <h3 className="text-lg font-medium text-gray-900">Stock</h3>
-          <div className="w-full">
-            <input
-              type="number"
-              className="mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-              placeholder="Enter stock"
-              value={product.stock}
-              name='stock'
-              onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}
-            />
-          </div>
-        </div>
-        <div className="space-y-6">
-          <h3 className="text-lg font-medium text-gray-900">Tags (comma separated)</h3>
+          <h3 className="text-lg font-medium text-gray-900">
+            Tags (comma separated)
+          </h3>
           <div className="w-full">
             <input
               type="text"
@@ -320,6 +378,7 @@ const NewProductForm: React.FC = () => {
           <button
             type="button"
             className="px-6 py-3 border rounded-lg hover:bg-gray-50"
+            onClick={() => router.push("/admin")}
           >
             Cancel
           </button>

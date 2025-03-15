@@ -11,11 +11,11 @@ import {
   X,
   ShoppingCart,
   Search,
-  Heart,
   ChevronDown,
   User,
   LogOut,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -27,6 +27,7 @@ export default function Navbar() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { user } = useAppSelector((store) => store.auth);
+  const {items} = useAppSelector(store=>store.cart);
 
   const handleOpenCart = () => {
       dispatch(toggleCartDrawer());
@@ -91,6 +92,9 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden sm:flex items-center space-x-8">
+          <Link href={'/'}
+                  className="text-gray-700 hover:text-black flex items-center cursor-pointer"
+                >Home </Link>
             {categories.map((category) => (
               <div
                 key={category.name}
@@ -98,9 +102,8 @@ export default function Navbar() {
                 onMouseEnter={() => handleMouseEnter(category.name)}
                 onMouseLeave={handleMouseLeave}
               >
-                <a
-                  href="#"
-                  className="text-gray-700 hover:text-black flex items-center"
+                <p
+                  className="text-gray-700 hover:text-black flex items-center cursor-pointer"
                 >
                   {category.name}
                   <ChevronDown
@@ -109,7 +112,7 @@ export default function Navbar() {
                       hoveredMenu === category.name ? "rotate-180" : ""
                     }`}
                   />
-                </a>
+                </p>
 
                 {/* Dropdown Menu */}
                 {hoveredMenu === category.name && (
@@ -133,17 +136,24 @@ export default function Navbar() {
                 )}
               </div>
             ))}
+
+            {user && user.role=="admin" && <Link href={'/admin'}
+                  className="text-gray-700 hover:text-black flex items-center cursor-pointer"
+                >admin <ChevronDown
+                size={16} className="ml-1"/></Link>}
           </div>
 
           <div className="flex items-center space-x-4">
             <button className="p-2">
               <Search size={24} />
             </button>
-            <button className="p-2">
-              <Heart size={24} />
-            </button>
-            <button className="p-2" onClick={handleOpenCart}>
-              <ShoppingCart size={24} />
+            <button className="p-2 relative" onClick={handleOpenCart}>
+            <ShoppingCart size={24} />
+                  {items.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-black text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                      {items.length}
+                    </span>
+                  )}
             </button>
             {user !== null ? (
               <>

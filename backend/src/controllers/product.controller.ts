@@ -110,7 +110,20 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
             },
         });
 
-        res.status(200).json(product);
+        if (!product) {
+            res.status(404).json(null);
+            return;
+        }
+
+        let parsedSizes;
+        if (typeof product.sizes === "string") {
+            parsedSizes = JSON.parse(product.sizes);
+        } else {
+            parsedSizes = product.sizes; // Already in correct format
+        }
+
+        
+        res.status(200).json({ ...product, sizes: parsedSizes });
     } catch (error) {
         next(error);
         

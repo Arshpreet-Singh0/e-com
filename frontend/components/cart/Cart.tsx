@@ -3,7 +3,8 @@
 import React from 'react';
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { CartItem, decreaseQuantity, deleteCartItemServer, increaseQuantity, Product, removeFromCart, toggleCartDrawer } from '@/lib/store/features/cartSlice';
+import { CartItem, decreaseQuantity, deleteCartItemServer, increaseQuantity, removeFromCart, toggleCartDrawer } from '@/lib/store/features/cartSlice';
+import Image from 'next/image';
 
 
 const CartDrawer = () => {
@@ -61,13 +62,15 @@ const handleDecreaseQuantity = (id : string, size : string) => {
                   <div className="mt-8">
                     <div className="flow-root">
                       <ul className="divide-y divide-gray-200">
-                        {items.map((item : any, idx:number) => (
+                        {items.map((item : CartItem, idx:number) => (
                           <li key={idx} className="py-6 flex">
                             <div className="flex-shrink-0 w-24 h-24 overflow-hidden rounded-md">
-                              <img
+                              <Image
                                 src={item?.product?.images?.[0]}
-                                alt={item.name}
+                                alt={item.id || " "}
                                 className="w-full h-full object-cover"
+                                height={100}
+                                width={100}
                               />
                             </div>
 
@@ -100,7 +103,7 @@ const handleDecreaseQuantity = (id : string, size : string) => {
 
                                 <button
                                   type="button"
-                                  onClick={() => user!=null ? dispatch(deleteCartItemServer(item.id)) : dispatch(removeFromCart({id : item?.product?.id, size : item?.size}))}
+                                  onClick={() => user!=null ? dispatch(deleteCartItemServer(item?.id || "")) : dispatch(removeFromCart({id : item?.product?.id, size : item?.size}))}
                                   className="font-medium text-red-600 hover:text-red-500 cursor-pointer"
                                 >
                                   Remove

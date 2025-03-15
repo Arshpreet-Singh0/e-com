@@ -10,7 +10,6 @@ export interface Product {
   name: string;
   price: number;
   images: string[];
-  size: string;
 }
 
 export interface CartItem {
@@ -50,7 +49,7 @@ export const addToCartServer = createAsyncThunk(
       }
     } catch (error) {
       handleAxiosError(error)
-      //@ts-expect-error
+      // @ts-expect-error: error.response may be undefined, and TypeScript doesn't recognize it
       
       return rejectWithValue(error.response?.data?.message || "Failed to add to cart");
     }
@@ -70,14 +69,14 @@ export const deleteCartItemServer = createAsyncThunk(
       }
     } catch (error) {
       handleAxiosError(error)
-      //@ts-expect-error
+       // @ts-expect-error: error.response may be undefined, and TypeScript doesn't recognize it
       return rejectWithValue(error.response?.data?.message || "Failed to add to cart");
     }
   }
 );
 export const syncCart = createAsyncThunk(
   "cart/syncCart",
-  async (items , { rejectWithValue }) => {
+  async (items : CartItem[] , { rejectWithValue }) => {
     console.log(items);
     
     try {
@@ -91,7 +90,7 @@ export const syncCart = createAsyncThunk(
       // }
     } catch (error) {
       handleAxiosError(error)
-      //@ts-expect-error
+       // @ts-expect-error: error.response may be undefined, and TypeScript doesn't recognize it
       return rejectWithValue(error.response?.data?.message || "Failed to add to cart");
     }
   }

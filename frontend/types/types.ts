@@ -4,8 +4,12 @@ export interface Product {
     price: number;
     images: string[];
     colors: string[];
-    sizes : string[];
+    sizes : {
+      size: string;
+      quantity : number
+    }[];
     discount? : number;
     description? : string;
-    category : string
+    category : string;
+    stock : number;
   }

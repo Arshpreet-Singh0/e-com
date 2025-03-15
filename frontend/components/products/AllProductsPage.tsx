@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Sliders, Search, ChevronDown } from 'lucide-react';
+import { Sliders, Search} from 'lucide-react';
 import ProductCard from './ProductCard';
 import { Product } from '@/types/types';
-import { useSearchParams } from 'next/navigation';
 
 const CATEGORIES = [
     { text: "All", value: "All" },
@@ -44,7 +43,7 @@ const ProductsPage = ({products, searchQuery} : {
     )
     .filter(product => 
       selectedSizes.length === 0 || 
-      product.sizes.some(size => selectedSizes.includes(size))
+      product.sizes.some(size => selectedSizes.includes(size.size))
     )
     .filter(product => 
       !selectedPriceRange ||

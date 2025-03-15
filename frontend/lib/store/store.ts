@@ -36,4 +36,5 @@ export const persistor = persistStore(store);
 
 // Infer types for TypeScript
 export type RootState = ReturnType<typeof store.getState>;
+export type AppState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
