@@ -21,7 +21,7 @@ const productSchema = z.object({
       message: "Stock must be a non-negative number",
     }),
 
-  brand: z.string(),
+  brand: z.string().optional(),
 
   sizes: z.array(z.string()).nonempty({ message: "Sizes are required" }),
 

@@ -30,11 +30,7 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
 
   }
 
-  const productImages = [
-    product?.images?.[0],
-    "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1605518216938-7c31b7b14ad0?auto=format&fit=crop&q=80",
-  ];
+  const productImages = product?.images;
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -76,7 +72,7 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
             <h2 className="text-3xl font-bold mb-4">{product.name} </h2>
             <div className="flex gap-5 items-center">
               <p className="text-2xl font-semibold mb-6"> ₹ {product.price} </p>
-              <p className="text-xl font-semibold mb-6 text-red-600">save {Math.floor(product.price * product.discount)/100}</p>
+              { product?.discount && <p className="text-xl font-semibold mb-6 text-red-600">save {Math.floor(product.price * product?.discount)/100}</p>}
 
             </div>
 

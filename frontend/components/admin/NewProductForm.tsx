@@ -3,32 +3,156 @@
 import React, { useState } from 'react';
 import { Upload, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
+import axios from 'axios';
+import { BACKEND_URL } from '@/config/config';
+import { handleAxiosError } from '@/utils/handleAxiosError';
+import { useRouter } from 'next/navigation';
+
+interface Product {
+  name: string;
+  description: string;
+  discount: number;
+  price: number;
+  images: string[]; // Array of image URLs
+  tags: string[]; // Array of tags
+  category: string;
+  sizes: string[]; // Array of sizes (e.g., ["S", "M", "L"])
+  stock: number;
+}
 
 const NewProductForm: React.FC = () => {
   const [images, setImages] = useState<string[]>([]);
-  const [colors, setColors] = useState<string[]>(['#000000']);
+  const [files, setFiles] = useState<File[]>([]);
+  const [sizes, setSizes] = useState<string>("");
+  const [tags, setTags] = useState<string>("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const router = useRouter();
+
+  const [product, setProduct] = useState<Product>({
+    name: "",
+    description: "",
+    discount: 0,
+    price: 0,
+    images: [],
+    tags: [],
+    category: "",
+    sizes: [],
+    stock: 0,
+  });
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      // In a real app, this would upload to a server and get URLs back
-      const newImages = Array.from(files).map(file => URL.createObjectURL(file));
+    const selectedFiles = e.target.files;
+    if (selectedFiles) {
+      const maxSize = 5 * 1024 * 1024; // 5MB
+
+      for (const file of selectedFiles) {
+        
+        if (file.size > maxSize) {
+          toast.error(`File size must not exceed 5MB.`);
+          return;
+        }
+      }
+
+      const newImages = Array.from(selectedFiles).map(file => URL.createObjectURL(file));
       setImages([...images, ...newImages]);
+      setFiles((f) => [...f, ...selectedFiles]);
     }
   };
 
-  const addColor = () => {
-    setColors([...colors, '#000000']);
+  const getSignedURLs = async () => {
+    const fileNames = files.map((f) => f.name);
+    try {
+      const res = await axios.post(`${BACKEND_URL}/api/v1/product/generate-urls`, { fileNames }, {
+        withCredentials: true
+      });
+
+      if (res?.data?.success) {
+        return res.data?.urls;
+      }
+    } catch (error) {
+      console.log(error);
+      handleAxiosError(error);
+    }
+  }
+
+  const uploadFiles = async (preSignedUrls: { url: string }[]) => {
+    try {
+      const uploadPromises = files.map(async (file, index) => {
+        const { url } = preSignedUrls[index]; // Get the corresponding URL
+        const config = {
+          headers: {
+            "Content-Type": file.type, // Ensure proper file type
+          },
+          onUploadProgress: (progressEvent : any) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+          },
+        };
+
+        const response = await axios.put(url, file, config);
+
+        if (response.status === 200) {
+          console.log(`Uploaded ${file.name} successfully`);
+        }
+      });
+
+      await Promise.all(uploadPromises);
+    } catch (error) {
+      handleAxiosError(error);
+      console.error("Error uploading files:", error);
+    }
   };
 
+  const getImageUrls = (preSignedUrls: { url: string }[]) => {
+    return preSignedUrls.map(({ url }) => {
+      const baseUrl = url.split("?")[0]; // Remove query parameters
+      return baseUrl;
+    });
+  };
 
-  const removeColor = (index: number) => {
-    setColors(colors.filter((_, i) => i !== index));
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    product.sizes = sizes.split(",").map((s) => s.trim());
+    product.tags = tags.split(",").map((t) => t.trim());
+    if (!product.name || !product.category || !product.description || !product.price || sizes.length == 0 || tags.length == 0 || files.length == 0) {
+      toast.error("All fields are required.");
+      return;
+    }
+
+    let toastId = toast.loading("Uploading Images...");
+
+    try {
+      const urls = await getSignedURLs();
+      await uploadFiles(urls);
+      toast.dismiss(toastId);
+      toast.success("Upload Successful!", {
+        description: "Your files have been uploaded successfully.",
+      });
+
+      toastId = toast.loading("Saving Product...");
+
+      product.images = getImageUrls(urls);
+
+      const res = await axios.post(`${BACKEND_URL}/api/v1/product`, product, {
+        withCredentials: true
+      });
+
+      if (res?.data?.success) {
+        toast.success(res?.data?.message);
+        router.push('/admin');
+      }
+    } catch (error) {
+      handleAxiosError(error);
+      console.log(error);
+    } finally {
+      toast.dismiss(toastId);
+    }
   };
 
   return (
     <div className="bg-white rounded-lg shadow md:p-8 p-4">
-      <form className="space-y-8 md:w-[60%] mx-auto border rounded-xl p-8" >
+      <form className="space-y-8 md:w-[75%] xl:w-[60%] mx-auto border rounded-xl p-8 bg-gray-50 shadow-xl" onSubmit={handleSubmit}>
         {/* Basic Information */}
         <div className="space-y-6">
           <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
@@ -41,6 +165,9 @@ const NewProductForm: React.FC = () => {
                 type="text"
                 className="mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="Enter product name"
+                value={product.name}
+                name='name'
+                onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}
               />
             </div>
             <div>
@@ -55,6 +182,9 @@ const NewProductForm: React.FC = () => {
                   type="number"
                   className="block w-full pl-7 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="0.00"
+                  name='price'
+                  value={product.price}
+                  onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}
                 />
               </div>
             </div>
@@ -64,14 +194,16 @@ const NewProductForm: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700">
                 Category
               </label>
-              <select className='form-select mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent'>
+              <select className='form-select mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent' name='category' onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}>
+                <option defaultValue={""} value={product.category}>Select category</option>
                 <option value="Men">Men</option>
                 <option value="Women">Women</option>
+                <option value="Sale">Sale</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                discount
+                Discount
               </label>
               <div className="mt-1 relative rounded-lg">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -81,6 +213,9 @@ const NewProductForm: React.FC = () => {
                   type="number"
                   className="block w-full pl-7 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="10"
+                  name='discount'
+                  value={product.discount}
+                  onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}
                 />
               </div>
             </div>
@@ -100,7 +235,10 @@ const NewProductForm: React.FC = () => {
                 />
                 <button
                   type="button"
-                  onClick={() => setImages(images.filter((_, i) => i !== index))}
+                  onClick={() => {
+                    setImages(images.filter((_, i) => i !== index));
+                    setFiles(files.filter((_, i) => i !== index))
+                  }}
                   className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-100"
                 >
                   <X size={16} />
@@ -119,55 +257,9 @@ const NewProductForm: React.FC = () => {
               />
             </label>
           </div>
-        </div>
-
-        {/* Colors */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium text-gray-900">Colors</h3>
-            <button
-              type="button"
-              onClick={addColor}
-              className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-            >
-              <Plus size={16} className="mr-1" />
-              Add Color
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {colors.map((color, index) => (
-              <div key={index} className="flex items-center space-x-4">
-                <input
-                  type="color"
-                  value={color}
-                  onChange={(e) => {
-                    const newColors = [...colors];
-                    newColors[index] = e.target.value;
-                    setColors(newColors);
-                  }}
-                  className="w-12 h-12 rounded-lg border-0 p-0 cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={color}
-                  onChange={(e) => {
-                    const newColors = [...colors];
-                    newColors[index] = e.target.value;
-                    setColors(newColors);
-                  }}
-                  className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                />
-                {colors.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeColor(index)}
-                    className="p-2 text-red-600 hover:text-red-900"
-                  >
-                    <X size={20} />
-                  </button>
-                )}
-              </div>
-            ))}
+          <div>
+            <progress value={uploadProgress} max="100" />
+            <span>Uploading... {uploadProgress}%</span>
           </div>
         </div>
 
@@ -178,26 +270,48 @@ const NewProductForm: React.FC = () => {
             rows={4}
             className="block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
             placeholder="Enter product description..."
+            name='description'
+            value={product.description}
+            onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}
           />
         </div>
 
         {/* Sizes and Stock */}
         <div className="space-y-6">
-          <h3 className="text-lg font-medium text-gray-900">Sizes and Stock</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
-              <div key={size} className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  {size}
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  className="block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                  placeholder="0"
-                />
-              </div>
-            ))}
+          <h3 className="text-lg font-medium text-gray-900">Sizes (comma separated)</h3>
+          <div className="w-full">
+            <input
+              type="text"
+              className="mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+              placeholder="Enter sizes"
+              value={sizes}
+              onChange={(e) => setSizes(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="space-y-6">
+          <h3 className="text-lg font-medium text-gray-900">Stock</h3>
+          <div className="w-full">
+            <input
+              type="number"
+              className="mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+              placeholder="Enter stock"
+              value={product.stock}
+              name='stock'
+              onChange={(e) => setProduct((p) => ({ ...p, [e.target.name]: e.target.value }))}
+            />
+          </div>
+        </div>
+        <div className="space-y-6">
+          <h3 className="text-lg font-medium text-gray-900">Tags (comma separated)</h3>
+          <div className="w-full">
+            <input
+              type="text"
+              className="mt-1 block w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+              placeholder="Enter tags"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+            />
           </div>
         </div>
 

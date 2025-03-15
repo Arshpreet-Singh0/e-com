@@ -3,6 +3,9 @@ import prisma from "../config/prisma";
 import productSchema from "../validations/productValidation";
 import generateEmbedding from "../config/embeddings"
 import { getSimilarProducts } from "../utils/getSimilarProducts";
+import { s3 } from "../config/awsconfig";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 export const createProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -135,3 +138,32 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
         next(error);
     }
 }
+
+export const generatePresignedUrls = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
+    try {
+      const { fileNames }: { fileNames: string[] } = req.body; // Ensure fileNames is an array
+  
+      if (!Array.isArray(fileNames) || fileNames.length === 0) {
+        res.status(400).json({ success: false, message: "Invalid file names array" });
+        return;
+      }
+  
+      const urls = await Promise.all(
+        fileNames.map(async (fileName) => {
+          const command = new PutObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME, // Replace with actual bucket name
+            Key: `uploads/${fileName}`,
+            ContentType: "image/jpeg", // Adjust if needed
+          });
+  
+          const url = await getSignedUrl(s3, command, { expiresIn: 60 });
+          return { fileName, url };
+        })
+      );
+
+      res.json({ success: true, urls });
+    } catch (error) {
+      console.error("Error generating pre-signed URLs:", error);
+      next(error);
+    }
+  };
