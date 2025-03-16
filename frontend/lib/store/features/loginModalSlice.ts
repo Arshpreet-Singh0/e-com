@@ -2,10 +2,12 @@ import { createSlice } from "@reduxjs/toolkit";
 
 interface ModalState {
   isLoginModalOpen: boolean;
+  isSizeChartOpen : boolean;
 }
 
 const initialState: ModalState = {
   isLoginModalOpen: false,
+  isSizeChartOpen : false,
 };
 
 const modalSlice = createSlice({
@@ -21,8 +23,17 @@ const modalSlice = createSlice({
     toggleLoginModal: (state) => {
       state.isLoginModalOpen = !state.isLoginModalOpen;
     },
+    openSizeChart: (state) => {
+      state.isSizeChartOpen = true;
+    },
+    closeSizeChart: (state) => {
+      state.isSizeChartOpen = false;
+    },
+    toggleSizeChart: (state) => {
+      state.isSizeChartOpen = !state.isLoginModalOpen;
+    },
   },
 });
 
-export const { openLoginModal, closeLoginModal, toggleLoginModal } = modalSlice.actions;
+export const { openLoginModal, closeLoginModal, toggleLoginModal, openSizeChart, closeSizeChart, toggleSizeChart} = modalSlice.actions;
 export default modalSlice.reducer;

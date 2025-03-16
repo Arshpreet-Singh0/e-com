@@ -4,11 +4,11 @@ import axios from "axios";
 
 const getProducts = async () => {
     try {
-        const res = await axios.get(`${BACKEND_URL}/api/v1/product/topproducts`);
-        return res.data?.products;
+        const res = await axios.get(`${BACKEND_URL}/api/v1/product`);
+        return res.data;
     } catch (error) {
-        console.error("Error fetching products:", error);
         return [];
+        console.error("Error fetching products:", error);
     }
 };
 

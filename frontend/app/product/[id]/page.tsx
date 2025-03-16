@@ -10,7 +10,7 @@ import { Suspense } from "react";
 //   loading: () => <p className="text-center text-gray-500">Loading similar products...</p>,
 // });
 
-const getProducts = async (id: string) => {
+const getProduct = async (id: string) => {
   try {
     const res = await axios.get(`${BACKEND_URL}/api/v1/product/${id}`);
     return res.data;
@@ -27,7 +27,9 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
     const id = (await params).id;
-    const product = await getProducts(id);
+    const product = await getProduct(id);
+    console.log(product);
+    
 
     return (
       <>

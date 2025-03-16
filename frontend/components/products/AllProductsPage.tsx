@@ -15,10 +15,10 @@ const CATEGORIES = [
 const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 const COLORS = ['#000000', '#1B365D', '#3B3B3B', '#7C7C7C', '#A6A6A6'];
 const PRICE_RANGES = [
-  { label: 'Under $50', min: 0, max: 50 },
-  { label: '$50 - $100', min: 50, max: 100 },
-  { label: '$100 - $150', min: 100, max: 150 },
-  { label: 'Over $150', min: 150, max: Infinity },
+  { label: 'Under ₹500', min: 0, max: 50 },
+  { label: '₹500 - ₹1000', min: 500, max: 1000 },
+  { label: '₹1000 - ₹1500', min: 1000, max: 1500 },
+  { label: 'Over ₹1500', min: 1500, max: Infinity },
 ];
 
 const ProductsPage = ({products, searchQuery} : {
@@ -43,7 +43,7 @@ const ProductsPage = ({products, searchQuery} : {
     )
     .filter(product => 
       selectedSizes.length === 0 || 
-      product.sizes.some(size => selectedSizes.includes(size.size))
+      product?.sizes?.some(size => selectedSizes.includes(size.size))
     )
     .filter(product => 
       !selectedPriceRange ||

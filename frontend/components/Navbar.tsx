@@ -102,7 +102,7 @@ export default function Navbar() {
                 onMouseEnter={() => handleMouseEnter(category.name)}
                 onMouseLeave={handleMouseLeave}
               >
-                <p
+                <Link href={`/products`}
                   className="text-gray-700 hover:text-black flex items-center cursor-pointer"
                 >
                   {category.name}
@@ -112,7 +112,7 @@ export default function Navbar() {
                       hoveredMenu === category.name ? "rotate-180" : ""
                     }`}
                   />
-                </p>
+                </Link>
 
                 {/* Dropdown Menu */}
                 {hoveredMenu === category.name && (

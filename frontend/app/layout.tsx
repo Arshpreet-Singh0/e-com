@@ -9,6 +9,7 @@ import StoreUser from "@/lib/StoreUser";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/cart/Cart";
+import Sizechart from "@/components/Sizechart";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +47,7 @@ export default async function RootLayout({
           <Footer />
           <Toaster richColors />
           <LoginModal />
+          <Sizechart />
           <CartDrawer />
         </Providers>
       </body>

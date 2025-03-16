@@ -17,6 +17,7 @@ const LoginModal = () => {
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
   const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const {items} = useAppSelector(store=>store.cart);
   
@@ -33,7 +34,8 @@ const LoginModal = () => {
       toast.error("You are offline. Please check your internet connection.");
       return;
     }
-    
+    const toastId = toast.loading("Sending otp...");
+    setLoading(true);
     try {
       const res = await axios.post(`${BACKEND_URL}/api/v1/getotp`, {name, phone, otp}, {
         withCredentials : true,
@@ -47,11 +49,16 @@ const LoginModal = () => {
     } catch (error) {
       console.log(error);
       handleAxiosError(error);
+    }finally{
+      toast.dismiss(toastId);
+      setLoading(false);
     }
   };
 
   const handleSubmitOTP = async(e: React.FormEvent)=>{
     e.preventDefault();
+    const toastId = toast.loading("Veryfing otp...");
+    setLoading(true);
     
     try {
       const res = await axios.post(`${BACKEND_URL}/api/v1/verifyotp`, {name, phone, otp}, {
@@ -73,6 +80,9 @@ const LoginModal = () => {
     } catch (error) {
       console.log(error);
       handleAxiosError(error);
+    }finally{
+      toast.dismiss(toastId);
+      setLoading(false);
     }
   }
   const onClose = ()=>{
@@ -89,6 +99,7 @@ const LoginModal = () => {
             className="w-full h-full object-cover"
             height={100}
             width={100}
+            unoptimized
           />
         </div>
 
@@ -133,6 +144,7 @@ const LoginModal = () => {
               <button
                 type="submit"
                 className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors"
+                disabled={loading}
               >
                 Get OTP
               </button>
@@ -158,6 +170,7 @@ const LoginModal = () => {
                 type="submit"
                 className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors cursor-pointer"
                 onClick={handleSubmitOTP}
+                disabled={loading}
               >
                 Verify OTP
               </button>

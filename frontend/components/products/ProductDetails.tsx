@@ -158,7 +158,8 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
             {/* Product Details */}
             <div className="mt-8">
               <h3 className="text-lg font-medium mb-4">Product Details</h3>
-              <p className="text-gray-700">{product.description}</p>
+              <p className="text-gray-700 whitespace-pre-line">{product.description}</p>
+
             </div>
           </div>
         </div>

@@ -1,4 +1,7 @@
 import ImageCarousel from './Carousel';
+import LimitedEdition from './LimitedEdition';
+import Newsletter from './Newsletter';
+import Sizeguide from './Sizeguide';
 import TopProducts from './TopProducts';
 
 function HomePage() {
@@ -9,6 +12,9 @@ function HomePage() {
       <ImageCarousel />
 
       <TopProducts />
+      <Sizeguide />
+      <LimitedEdition />
+      <Newsletter />
     </div>
   );
 }
