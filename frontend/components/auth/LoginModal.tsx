@@ -76,7 +76,7 @@ const LoginModal = () => {
       
       if(res?.data?.success){
         toast.success(res?.data?.message);
-        setStep('otp');
+        setStep('phone');
       }
     } catch (error) {
       console.log(error);

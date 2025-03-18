@@ -74,6 +74,7 @@ export const getTopProducts = async (req: Request, res: Response, next: NextFunc
 export const updateProduct = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
     try {
         const { productId } = req.params;
+        
         const parsedData = productSchema.safeParse(req.body);
 
         if(parsedData.error){
@@ -106,8 +107,21 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
 
         const product = await prisma.product.findUnique({
             where : {
-                id : productId
+                id : productId,
+                disabled : false,
             },
+            select : {
+                id : true,
+                name : true,
+                description : true,
+                sizes : true,
+                category : true,
+                price : true,
+                images : true,
+                brand : true,
+                tags : true,
+                discount : true,
+            }
         });
 
         if (!product) {

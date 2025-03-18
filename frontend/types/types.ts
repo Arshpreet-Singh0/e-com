@@ -12,4 +12,5 @@ export interface Product {
     description? : string;
     category : string;
     stock : number;
+    tags : string[]
   }

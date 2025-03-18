@@ -19,9 +19,9 @@ const productSchema = z.object({
     .transform((val) => Number(val))
     .refine((num) => !isNaN(num) && num >= 0, {
       message: "Stock must be a non-negative number",
-    }),
+    }).optional(),
 
-  brand: z.string().optional(),
+  // brand: z.string().optional(),
 
   // ✅ Updated sizes schema: Array of objects { size: string, quantity: number }
   sizes: z.array(
