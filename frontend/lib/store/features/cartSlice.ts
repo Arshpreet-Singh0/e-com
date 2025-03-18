@@ -163,6 +163,9 @@ const cartSlice = createSlice({
     toggleCartDrawer: (state) => {
       state.isCartOpen = !state.isCartOpen;
     },
+    closeCartDrawer: (state) => {
+      state.isCartOpen = false;
+    },
     clearCart: (state) => {
       state.items = [];
     },
@@ -185,7 +188,7 @@ const cartSlice = createSlice({
 });
 
 // Export actions
-export const { addToCart, removeFromCart, toggleCartDrawer, clearCart, increaseQuantity, decreaseQuantity, setCart } =
+export const { addToCart, removeFromCart, toggleCartDrawer, clearCart, increaseQuantity, decreaseQuantity, setCart , closeCartDrawer} =
   cartSlice.actions;
 
 // Export reducer

@@ -1,18 +1,18 @@
 "use client";
 
 import React from "react";
-import { X, Minus, Plus, ShoppingBag } from "lucide-react";
+import { X, ShoppingBag } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import {
   CartItem,
-  decreaseQuantity,
+  closeCartDrawer,
   deleteCartItemServer,
-  increaseQuantity,
   removeFromCart,
   toggleCartDrawer,
 } from "@/lib/store/features/cartSlice";
 import Image from "next/image";
 import CartQuantityHandler from "./CartQuantityHandler";
+import { useRouter } from "next/navigation";
 
 const CartDrawer = () => {
   //   const { items, removeItem, updateQuantity, totalItems, totalPrice } = useCart();
@@ -20,6 +20,7 @@ const CartDrawer = () => {
 
   const { isCartOpen, items } = useAppSelector((store) => store.cart);
   const { user } = useAppSelector((store) => store.auth);
+  const router = useRouter();
 
   const totalPrice: number = items?.reduce(
     (total: number, item: CartItem) =>
@@ -29,13 +30,6 @@ const CartDrawer = () => {
 
   const onClose = () => {
     dispatch(toggleCartDrawer());
-  };
-
-  const handleIncreaseQuantity = (id: string, size: string) => {
-    dispatch(increaseQuantity({ id, size }));
-  };
-  const handleDecreaseQuantity = (id: string, size: string) => {
-    dispatch(decreaseQuantity({ id, size }));
   };
 
   if (!isCartOpen) return null;
@@ -141,7 +135,10 @@ const CartDrawer = () => {
                   <p>₹{totalPrice.toFixed(2)}</p>
                 </div>
                 <button
-                  //   onClick={onCheckout}
+                    onClick={()=>{
+                      dispatch(closeCartDrawer())
+                      router.push('/checkout')
+                    }}
                   className="w-full bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-colors"
                 >
                   Checkout
