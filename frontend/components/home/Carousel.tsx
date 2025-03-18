@@ -42,11 +42,11 @@ export default function ImageCarousel() {
     };
 
     return (
-        <div className="relative w-full mx-auto overflow-hidden">
+        <div className="relative w-full mx-auto overflow-hidden ">
             <Carousel className="relative w-full">
                 <CarouselContent className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
                     {images.map((src, index) => (
-                        <CarouselItem key={index} className="h-[600px] w-full flex-shrink-0 bg-cover bg-center relative"
+                        <CarouselItem key={index} className="h-[500px] w-full flex-shrink-0 bg-cover bg-center relative"
                             style={{ backgroundImage: `url(${src})` }}>
                             <div className="absolute inset-0 bg-[rgba(0,0,0,0.4)] flex items-center justify-center">
                                 <div className="text-center text-white">

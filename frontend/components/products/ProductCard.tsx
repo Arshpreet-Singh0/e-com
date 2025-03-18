@@ -15,7 +15,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   
   return (
     <div className="group relative">
-      <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100" onClick={()=>router.push(`/product/${product?.id}`)}>
+      <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100 h-[300px]" onClick={()=>router.push(`/product/${product?.id}`)}>
         <Image
           src={product?.images?.[0]}
           alt={product.name}

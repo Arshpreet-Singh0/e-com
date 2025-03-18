@@ -24,8 +24,10 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  cartId String? @unique
-  Cart   Cart?
+  cartId  String?   @unique
+  Cart    Cart?
+  // Order   Order[]
+  // Address Address[]
 }
 
 model Product {
@@ -43,9 +45,10 @@ model Product {
   embedding   Json     @db.JsonB
   disabled    Boolean  @default(false)
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   CartItem  CartItem[]
+  // OrderItem OrderItem[]
 }
 
 model Cart {
@@ -66,3 +69,55 @@ model CartItem {
   quantity  Int     @default(1)
   size      String? // Optional size
 }
+
+// model Order {
+//   id                String      @id @default(uuid())
+//   user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   userId            String
+//   items             OrderItem[]
+//   totalAmount       Float                           // Total order cost
+//   status            String      @default("pending") // "pending", "processing", "shipped", "delivered", "cancelled"
+//   paymentStatus     String      @default("unpaid")  // "unpaid", "paid", "failed"
+//   paymentMethod     String?     @default("cod")     // "cod", "credit_card", "upi", etc.
+  
+//   addressId         String
+//   address           Address     @relation(fields: [addressId], references: [id]) // Fixed typo
+  
+//   razorpayOrderId   String? // Razorpay Order ID for tracking
+//   razorpayPaymentId String? // Razorpay Payment ID (captured during payment)
+//   razorpaySignature String? // Signature for payment verification
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
+
+// model OrderItem {
+//   id        String  @id @default(uuid())
+//   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+//   orderId   String
+//   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   productId String
+//   quantity  Int     @default(1)
+//   size      String? // Size selected for the order
+//   price     Float // Price at the time of order (in case of discounts or price changes)
+// }
+
+// model Address {
+//   id     String @id @default(uuid())
+//   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   userId String
+
+//   fullName  String
+//   phone     String
+//   street    String?
+//   city      String
+//   state     String
+//   country   String
+//   pincode   String
+//   landmark  String? // Optional field for nearby landmarks
+//   isDefault Boolean @default(false) // Marks the default address for the user
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   Order     Order[] // This means one address can be linked to multiple orders
+// }

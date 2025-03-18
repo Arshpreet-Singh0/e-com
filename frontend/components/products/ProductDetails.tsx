@@ -50,7 +50,7 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
       <div className="bg-white max-w-6xl w-full rounded-lg overflow-hidden shadow-lg">
         <div className="flex flex-col md:flex-row">
           {/* Product Images */}
-          <div className="w-full md:w-3/5 relative">
+          <div className="w-full md:w-1/2 relative">
             <div className="aspect-square relative">
               <Image
                 src={productImages[currentImageIndex]}
@@ -87,7 +87,7 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
           </div>
 
           {/* Product Info */}
-          <div className="w-full md:w-2/5 p-8">
+          <div className="w-full flex-1 p-8">
             <h2 className="text-3xl font-bold mb-4">{product.name} </h2>
             <div className="flex gap-5 items-center">
               <p className="text-2xl font-semibold mb-6"> ₹ {product.price} </p>

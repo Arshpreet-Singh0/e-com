@@ -11,6 +11,7 @@ import { setUser } from '@/lib/store/features/authSlice';
 import { handleAxiosError } from '@/utils/handleAxiosError';
 import { syncCart } from '@/lib/store/features/cartSlice';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const LoginModal = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
@@ -184,11 +185,11 @@ const LoginModal = () => {
             </div>
           )}
 
-          <div className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-6 text-center text-sm text-gray-500">
             By continuing, you agree to our{' '}
-            <a href="#" className="text-black hover:underline">Terms of Service</a>
+            <Link href="/terms" className="text-black hover:underline" target='_blank'>Terms of Service</Link>
             {' '}and{' '}
-            <a href="#" className="text-black hover:underline">Privacy Policy</a>
+            <Link href="/privacy-policy" className="text-black hover:underline" target='_blank'>Privacy Policy</Link>
           </div>
         </div>
       </div>

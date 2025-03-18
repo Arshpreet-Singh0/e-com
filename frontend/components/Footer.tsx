@@ -9,13 +9,27 @@ export default function Footer() {
             <div>
               <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
-                {['FAQ', 'Shipping', 'Returns', 'Contact'].map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white">
-                      {item}
-                    </a>
+                {/* {['FAQ', 'Shipping', 'Returns', 'Contact'].map((item) => ( */}
+                  <li >
+                    <Link href="/about" className="text-gray-400 hover:text-white">
+                      About us
+                    </Link>
                   </li>
-                ))}
+                  <li >
+                    <Link href="" className="text-gray-400 hover:text-white">
+                      FAQ
+                    </Link>
+                  </li>
+                  <li >
+                    <Link href="" className="text-gray-400 hover:text-white">
+                      Returns
+                    </Link>
+                  </li>
+                  <li >
+                    <Link href="/privacy-policy" className="text-gray-400 hover:text-white">
+                      Privacy Policy
+                    </Link>
+                  </li>
               </ul>
             </div>
             <div>

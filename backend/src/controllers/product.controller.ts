@@ -144,9 +144,18 @@ export const getProductRecomendations = async (req: Request, res: Response, next
 
 export const getAllProducts = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
     try {
-        const products = await prisma.product.findMany({});
+        const products = await prisma.product.findMany({
+            where : {
+                disabled : false
+            }
+        });
 
-        res.status(200).json(products)
+        const parsedProducts = products.map(product => ({
+            ...product,
+            sizes: typeof product.sizes === "string" ? JSON.parse(product.sizes) : product.sizes
+        }));
+        
+        res.status(200).json(parsedProducts);
     } catch (error) {
         next(error);
     }
