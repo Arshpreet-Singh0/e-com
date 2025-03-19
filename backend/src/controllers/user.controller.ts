@@ -5,6 +5,8 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from '../config/secret';
 import { userSchema } from "../validations/userValidation";
+import { addressSchema } from "../validations/addressValidation";
+import { error } from "console";
 
 export const sendOtp = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
   try {
@@ -195,5 +197,54 @@ export const logout = async (req: Request, res: Response, next: NextFunction): P
   } catch (error) {
     console.error("Error logging out:", error);
     next(error);
+  }
+}
+
+
+export const saveAddress = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const parsedData = addressSchema.safeParse(req.body);
+    const userId = req.userId;
+
+    if(!userId){
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    if(parsedData.error){
+      res.status(400).json({ message : "Invalid request data", success : false, error : parsedData.error });
+      return;
+    }
+
+    await prisma.address.create({
+      data  : {
+        ...parsedData.data,
+        userId
+      }
+    })
+
+    res.status(200).json({
+      message : "address saved successfully",
+      success : true
+    })
+
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const getAddress = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const address = await prisma.address.findMany({
+      where : {
+        userId : req.userId,
+      }
+    });
+
+    res.status(200).json(address);
+    
+  } catch (error) {
+    console.log(error);
+    
   }
 }
