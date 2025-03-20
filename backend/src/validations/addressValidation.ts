@@ -2,7 +2,11 @@ import { z } from "zod";
 
 export const addressSchema = z.object({
 
-  fullName: z.string().min(1, { message: "Full name is required" }),
+  firstName: z.string().min(1, { message: "first name is required" }),
+
+  lastName: z.string().min(1).optional(),
+  
+  email : z.string().email({message : "email is required"}),
 
   phone: z
     .string()
@@ -14,8 +18,6 @@ export const addressSchema = z.object({
   city: z.string().min(1, { message: "City is required" }),
 
   state: z.string().min(1, { message: "State is required" }),
-
-  country: z.string().min(1, { message: "Country is required" }),
 
   pincode: z.string().regex(/^\d{6}$/, { message: "Invalid pincode format" }),
 

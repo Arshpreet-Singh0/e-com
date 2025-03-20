@@ -223,9 +223,16 @@ export const saveAddress = async (req: Request, res: Response, next: NextFunctio
       }
     })
 
+    const addresses = await prisma.address.findMany({
+      where : {
+        userId : req.userId,
+      }
+    });
+
     res.status(200).json({
       message : "address saved successfully",
-      success : true
+      success : true,
+      addresses
     })
 
   } catch (error) {

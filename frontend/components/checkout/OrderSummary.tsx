@@ -21,8 +21,8 @@ const OrderSummary = () => {
     <div className="bg-white rounded-lg shadow p-8">
       <h2 className="text-lg font-medium text-gray-900 mb-6">Order Summary</h2>
       <div className="space-y-4">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center">
+        {items.map((item, idx) => (
+          <div key={idx} className="flex items-center">
             <img
               src={item.product.images?.[0]}
               alt={item.product.name}
