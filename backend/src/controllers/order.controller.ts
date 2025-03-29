@@ -92,3 +92,37 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
         res.status(500).json({ message: "Internal Server Error", error: error instanceof Error ? error.message : error });
     }
 };
+
+export const getOrders = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const userId: string | undefined = req.userId;
+        if (!userId) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+
+        const orders = await prisma.order.findMany({
+            where: { userId },
+            include: {
+                items: {
+                    include: {
+                        product: {
+                            select: {
+                                id: true,
+                                name: true,
+                                price: true,
+                                images: true,
+                            },
+                        },
+                    },
+                },
+                address: true,
+            },
+        });
+
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error instanceof Error ? error.message : error });
+    }
+};

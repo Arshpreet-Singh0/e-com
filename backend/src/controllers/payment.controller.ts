@@ -32,7 +32,7 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
         // Update order status to "PAID"
         const updatedOrder = await prisma.order.update({
             where: { id: orderId },
-            data: { status: "paid", razorpayPaymentId : paymentId },
+            data: { paymentStatus : "paid", razorpayPaymentId : paymentId },
         });
 
         // Send payment details to frontend
@@ -45,7 +45,7 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
                 paymentId: updatedOrder.razorpayPaymentId,
                 totalAmount: updatedOrder.totalAmount,
                 currency: "INR",
-                status: updatedOrder.status,
+                paymetStatus : updatedOrder.paymentStatus,
                 date: new Date(updatedOrder.createdAt).toLocaleString(),
             },
         });
