@@ -54,6 +54,13 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
             if (!price) throw new Error(`Product price not found for productId: ${item.productId}`);
             return acc + price * item.quantity;
         }, 0);
+        const razorpayOrder  = await razorpay.orders.create({
+            amount: Number(totalAmount) * 100, // Amount in paise
+            currency: "INR",
+            receipt: `receipt_${Date.now()}`,
+        });
+        
+        // console.log(razorpayOrder); // Check the actual response
 
         // Create order in database
         const order = await prisma.order.create({
@@ -68,17 +75,11 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
                 })) },
                 totalAmount,
                 paymentStatus : "pending", // Initial status
+                razorpayOrderId : razorpayOrder.id,
             },
         });
 
         // Create Razorpay order
-        const razorpayOrder = await razorpay.orders.create({
-            amount: totalAmount * 100,
-            currency: "INR",
-            receipt: order.id,
-        });
-        
-        console.log(razorpayOrder); // Check the actual response
 
         res.status(201).json({
             message: "Order created successfully",
@@ -95,9 +96,14 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
 // Verify Razorpay Payment
 export const verifyPayment = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { orderId, paymentId, signature }: { orderId: string; paymentId: string; signature: string } = req.body;
+        const { orderId, paymentId, signature, razorpay_order_id }: { orderId: string; paymentId: string; signature: string, razorpay_order_id : string } = req.body;
+        console.log(req.body);
 
-        if (!orderId || !paymentId || !signature) {
+        console.log(req.body);
+        
+        
+
+        if (!orderId || !paymentId || !signature || !razorpay_order_id) {
             res.status(400).json({ status: "FAILED", message: "Missing required payment details" });
             return;
         }
@@ -105,8 +111,9 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
         // Generate HMAC SHA256 signature for verification
         const generatedSignature = crypto
             .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
-            .update(`${orderId}|${paymentId}`)
+            .update(`${razorpay_order_id}|${paymentId}`)
             .digest("hex");
+
 
         if (generatedSignature !== signature) {
             res.status(400).json({ status: "FAILED", message: "Invalid signature. Payment verification failed." });

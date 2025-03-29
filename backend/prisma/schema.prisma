@@ -70,7 +70,7 @@ model Order {
   totalAmount   Float // Total order cost
   status        String      @default("pending") // "pending", "processing", "shipped", "delivered", "cancelled"
   paymentStatus String      @default("unpaid") // "unpaid", "paid", "failed"
-  paymentMethod String?     @default("cod") // "cod", "credit_card", "upi", etc.
+  paymentMethod String?   // "cod", "credit_card", "upi", etc.
 
   addressId String
   address   Address @relation(fields: [addressId], references: [id]) // Fixed typo

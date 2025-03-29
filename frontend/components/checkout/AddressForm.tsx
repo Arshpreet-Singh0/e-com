@@ -1,12 +1,17 @@
 "use client";
 
 import { BACKEND_URL } from "@/config/config";
+import { useAppSelector } from "@/lib/store/hooks";
 import { handleAxiosError } from "@/utils/handleAxiosError";
 import axios from "axios";
 import { Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-
+export interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
 const AddressForm = () => {
   const [formData, setFormData] = useState({
     firstName: "",
@@ -20,6 +25,8 @@ const AddressForm = () => {
     street : ""
   });
 
+  const {items} = useAppSelector(store => store.cart);
+
   interface Address {
     id: string;
     firstName: string;
@@ -30,6 +37,7 @@ const AddressForm = () => {
     state: string;
     pincode: string;
     landmark: string;
+    email : string;
   }
 
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
@@ -60,6 +68,106 @@ const AddressForm = () => {
     };
     getSavedAddresses();
   }, []);
+
+//   useEffect(() => {
+//     const script = document.createElement("script");
+//     script.src = "https://checkout.razorpay.com/v1/checkout.js";
+//     script.async = true;
+//     script.onload = () => console.log("Razorpay script loaded!");
+//     document.body.appendChild(script);
+// }, []);
+
+
+
+  const handleCheckout = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    if (!selectedAddressId) {
+      toast.error("Please select an address");
+      return;
+    }
+  
+    try {
+      // Create Order on Backend
+      const orderResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/order`,
+        { items, addressId: selectedAddressId },
+        { withCredentials: true }
+      );
+  
+      if (!orderResponse.data || !orderResponse.data.order) {
+        toast.error("Failed to create order. Please try again.");
+        return;
+      }
+  
+      const {id: prisamOrderId} = orderResponse.data.order;
+      const { amount, id: orderId } = orderResponse.data?.razorpayOrder;
+      console.log(orderResponse.data?.key);
+      console.log( amount, orderId);
+
+      console.log("Order Response:", orderResponse.data);
+
+      
+      
+      const scriptLoaded = await loadRazorpayScript();
+      console.log(process.env.NEXT_PUBLIC_RAZORPAY_KEY);
+      
+      console.log("Script Loaded:", scriptLoaded);
+if (!scriptLoaded) {
+  toast.error("Failed to load Razorpay. Check your network.");
+  return;
+}
+      // Initialize Razorpay Payment
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY, // Razorpay Key
+        amount: amount,
+        currency: "INR",
+        name: "DENIM CO.",
+        description: "Order Payment",
+        order_id: orderId, // Ensure this is correctly mapped
+        handler: function (response: RazorpayResponse) {
+          // Redirect to verify page with all necessary parameters
+          const params = new URLSearchParams({
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature,
+            order_id: prisamOrderId,
+            amount: String(amount),
+          });
+          window.location.href = `/payment/verify?${params.toString()}`;
+        },
+        modal: {
+          ondismiss: function () {
+            window.location.href = "/payment/cancel";
+          },
+        },
+        prefill: {
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          contact: formData.phone,
+        },
+        theme: {
+          color: "#000000",
+        },
+      };
+  
+      try {
+        const razorpay = new (window as any).Razorpay(options);
+        console.log("Razorpay Instance:", razorpay);
+        
+        razorpay.open();
+      } catch (err) {
+        console.error("Razorpay Initialization Error:", err);
+        toast.error("Failed to initialize Razorpay.");
+      }
+      
+    } catch (error) {
+      console.log(error);
+      
+      handleAxiosError(error);
+    }
+  };
+  
 
   const handleSaveAdress = async(e : React.FormEvent)=>{
     e.preventDefault();
@@ -122,6 +230,7 @@ const AddressForm = () => {
                 onClick={() => setSelectedAddressId(addr.id)}
               >
                 <p className="font-semibold">{addr.firstName} {addr.lastName}</p>
+                <p className="text-sm">{addr.email}</p>
                 <p className="text-sm text-gray-600">
                   {addr.street}, {addr.city}, {addr.state} - {addr.pincode}
                 </p>
@@ -286,6 +395,7 @@ const AddressForm = () => {
         !showNewAddressForm && (
           <button
           className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 mt-10"
+          onClick={handleCheckout}
         >
           Continue to Payment
         </button>
@@ -300,3 +410,14 @@ const AddressForm = () => {
 };
 
 export default AddressForm;
+
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
