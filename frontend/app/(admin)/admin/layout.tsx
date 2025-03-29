@@ -1,4 +1,4 @@
-import ProtectedRoutes from "@/components/admin/ProtectedRoutes";
+import ProtectedAdminRoutes from "@/components/admin/ProtectedAdminRoutes";
 import Sidebar from "@/components/admin/Sidebar";
 
 export default async function Layout({
@@ -6,7 +6,7 @@ export default async function Layout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <>
-      <ProtectedRoutes />
+      <ProtectedAdminRoutes/>
       <div className="flex">
         <Sidebar />
         <div className="flex-1">{children}</div>

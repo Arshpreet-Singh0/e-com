@@ -35,10 +35,9 @@ export function VerifyContent() {
         //   throw new Error("Missing payment parameters");
         // }
 
-
         // Verify with Razorpay endpoint with all required fields
 
-            const response = await axios.post(`${BACKEND_URL}/api/v1/order/verify`,{
+            const response = await axios.post(`${BACKEND_URL}/api/v1/payment/verify`,{
                 orderId,
                 paymentId,
                 signature,

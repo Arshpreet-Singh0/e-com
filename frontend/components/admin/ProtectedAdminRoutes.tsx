@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-const ProtectedRoutes = () => {
+const ProtectedAdminRoutes = () => {
     const { user } = useAppSelector(store=>store.auth);
 
     const router = useRouter();
@@ -21,4 +21,4 @@ const ProtectedRoutes = () => {
   )
 }
 
-export default ProtectedRoutes
+export default ProtectedAdminRoutes

@@ -5,6 +5,7 @@ import { useAppSelector } from "@/lib/store/hooks";
 import { handleAxiosError } from "@/utils/handleAxiosError";
 import axios from "axios";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 export interface RazorpayResponse {
@@ -25,6 +26,8 @@ const AddressForm = () => {
     street : ""
   });
 
+  const {user} = useAppSelector(store => store.auth);
+
   const {items} = useAppSelector(store => store.cart);
 
   interface Address {
@@ -44,15 +47,28 @@ const AddressForm = () => {
   const [loading, setLoading] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  useEffect(()=>{
+    if(!user){
+      toast.error("You are not logged in");
+      router.push('/');
+      return;
+    }
+  })
+
   useEffect(() => {
     const getSavedAddresses = async () => {
       setLoading(true);
+
+      if(!user){
+        return;
+      }
       try {
         const res = await axios.get(`${BACKEND_URL}/api/v1/address`, {
           withCredentials: true,
@@ -102,17 +118,10 @@ const AddressForm = () => {
   
       const {id: prisamOrderId} = orderResponse.data.order;
       const { amount, id: orderId } = orderResponse.data?.razorpayOrder;
-      console.log(orderResponse.data?.key);
-      console.log( amount, orderId);
-
-      console.log("Order Response:", orderResponse.data);
 
       
       
       const scriptLoaded = await loadRazorpayScript();
-      console.log(process.env.NEXT_PUBLIC_RAZORPAY_KEY);
-      
-      console.log("Script Loaded:", scriptLoaded);
 if (!scriptLoaded) {
   toast.error("Failed to load Razorpay. Check your network.");
   return;
