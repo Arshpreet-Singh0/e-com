@@ -8,11 +8,11 @@ export interface Product {
       size: string;
       quantity : number
     }[];
-    discount? : number;
+    discount : number;
     description? : string;
     category : string;
     stock : number;
-    tags : string[]
+    tags : string[];
   }
 
 interface OrderItem {

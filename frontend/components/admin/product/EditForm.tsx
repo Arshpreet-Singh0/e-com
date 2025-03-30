@@ -31,7 +31,7 @@ const EditProductForm = ({ product }: { product: Product }) => {
     console.log(updatedData);
     
 
-    let toastId = toast.loading("Saving Product...");
+    const toastId = toast.loading("Saving Product...");
 
     try {
       const res = await axios.put(`${BACKEND_URL}/api/v1/product/${product.id}`, updatedData, {

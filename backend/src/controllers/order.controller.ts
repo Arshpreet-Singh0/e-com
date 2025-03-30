@@ -44,10 +44,15 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
         const productIds = items.map(item => item.productId);
         const products = await prisma.product.findMany({
             where: { id: { in: productIds } },
-            select: { id: true, price: true },
+            select: { id: true, price: true, discount : true },
         });
 
-        const productPriceMap = new Map(products.map(product => [product.id, product.price]));
+        const productPriceMap = new Map(products.map(product => {
+            const finalPrice = Math.max(0, product.price - (product.price*(product?.discount || 0)/100 || 0)); // Ensure price is not negative
+            return [product.id, finalPrice];
+        }));
+
+
 
         const totalAmount: number = items.reduce((acc, item) => {
             const price = productPriceMap.get(item.productId);
@@ -118,6 +123,9 @@ export const getOrders = async (req: Request, res: Response, next: NextFunction)
                 },
                 address: true,
             },
+            orderBy : {
+                createdAt : "desc"
+            }
         });
 
         res.status(200).json(orders);

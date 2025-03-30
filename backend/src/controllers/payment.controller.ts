@@ -27,7 +27,7 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
         if (generatedSignature !== signature) {
             await prisma.order.update({
                 where: { id: orderId },
-                data: { paymentStatus : "failed", razorpayPaymentId : paymentId },
+                data: { paymentStatus : "failed", status : "cancelled",razorpayPaymentId : paymentId },
             });
             res.status(400).json({ status: "FAILED", message: "Invalid signature. Payment verification failed." });
             return;

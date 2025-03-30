@@ -83,7 +83,7 @@ const AddressForm = () => {
       }
     };
     getSavedAddresses();
-  }, []);
+  }, [user]);
 
 //   useEffect(() => {
 //     const script = document.createElement("script");
@@ -147,7 +147,7 @@ if (!scriptLoaded) {
         },
         modal: {
           ondismiss: function () {
-            window.location.href = "/payment/cancel";
+            window.location.href = `/payment/cancel?order_id=${prisamOrderId}`;
           },
         },
         prefill: {
@@ -161,8 +161,7 @@ if (!scriptLoaded) {
       };
   
       try {
-        const razorpay = new (window as any).Razorpay(options);
-        console.log("Razorpay Instance:", razorpay);
+        const razorpay = new window.Razorpay(options);
         
         razorpay.open();
       } catch (err) {

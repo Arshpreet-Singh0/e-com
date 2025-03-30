@@ -1,3 +1,4 @@
+import Image from "next/image";
 
 
 export default function Page(){
@@ -8,10 +9,12 @@ export default function Page(){
         
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           <div>
-            <img 
+            <Image
               src="https://images.unsplash.com/photo-1565084888279-aca607ecce0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
               alt="Denim manufacturing"
               className="rounded-lg shadow-lg"
+              width={100}
+              height={100}
             />
           </div>
           <div className="flex flex-col justify-center">

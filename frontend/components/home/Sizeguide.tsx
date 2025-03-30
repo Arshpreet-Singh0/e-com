@@ -3,6 +3,7 @@
 import { openSizeChart } from "@/lib/store/features/loginModalSlice";
 import { useAppDispatch } from "@/lib/store/hooks";
 import { ChevronRight, Ruler } from "lucide-react"
+import Image from "next/image";
 
 const Sizeguide = () => {
     const dispatch = useAppDispatch();
@@ -27,10 +28,12 @@ const Sizeguide = () => {
               </button>
             </div>
             <div className="relative h-64 lg:h-auto">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1604176354204-9268737828e4?auto=format&fit=crop&w=800"
                 alt="Size Guide"
                 className="absolute inset-0 w-full h-full object-cover"
+                height={100}
+                width={100}
               />
             </div>
           </div>

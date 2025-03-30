@@ -10,6 +10,7 @@ export interface Product {
   name: string;
   price: number;
   images: string[];
+  discount : number;
 }
 
 export interface CartItem {

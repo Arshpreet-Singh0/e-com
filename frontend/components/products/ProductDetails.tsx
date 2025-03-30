@@ -18,7 +18,8 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
     id : string;
     price : number;
     name : string;
-    images : string[]
+    images : string[],
+    discount : number;
   }) => {
     if (!selectedSize) {
       toast.error("Please Select a size");

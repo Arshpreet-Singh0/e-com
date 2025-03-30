@@ -18,7 +18,7 @@ const ProtectedRoutes = () => {
             dispatch(openLoginModal());
             router.push("/");
         }
-    },[user, router]);
+    },[user, router, dispatch]);
   return (
     null
   )

@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle,
   ArrowRight,
@@ -11,10 +10,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion} from "framer-motion";
-import { BACKEND_URL } from "@/config/config";
 
 export function PaymentSuccessContent() {
-  const searchParams = useSearchParams();
   const router = useRouter();
 {
     return (

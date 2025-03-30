@@ -56,10 +56,10 @@ export function VerifyContent() {
                 "Payment Verified"
               );
     
-      } catch (error: any) {
+      } catch (error) {
         console.error("Verification error:", error);
         setStatus("failed");
-        setErrorMessage(error.message || "Payment verification failed");
+        setErrorMessage("Payment verification failed");
         setTimeout(() => {
           router.push("/payment/cancel");
         }, 2000);

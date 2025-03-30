@@ -1,31 +1,32 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Package, Truck, CheckCircle, Mail, Search, Filter, ChevronDown, X } from 'lucide-react';
+import { Mail, Search, Filter, ChevronDown, X } from 'lucide-react';
 import { Order } from '@/types/types';
+import Image from 'next/image';
 // import OrderEmailTemplate from '../../components/emails/OrderEmailTemplate';
 
 const ORDER_STATUSES = [
-    'Pending',
-    'Processing',
-    'In Transit',
-    'Delivered',
-    'Cancelled'
+    'pending',
+    'processing',
+    'in transit',
+    'delivered',
+    'cancelled'
   ];
-const ORDER_STATUSES_COLORS = {
-    'Pending': 'bg-yellow-100 text-yellow-800',
-    'Processing': 'bg-blue-100 text-blue-800',
-    'In Transit': 'bg-orange-100 text-orange-800',
-    'Delivered': 'bg-green-100 text-green-800',
-    'Cancelled': 'bg-red-100 text-red-800'
-  };
-const ORDER_STATUSES_ICONS = {
-    'Pending': <Search />,
-    'Processing': <Package />,
-    'In Transit': <Truck />,
-    'Delivered': <CheckCircle />,
-    'Cancelled': <X />
-};
+// const ORDER_STATUSES_COLORS = {
+//     'pending': 'bg-yellow-100 text-yellow-800',
+//     'processing': 'bg-blue-100 text-blue-800',
+//     'in Transit': 'bg-orange-100 text-orange-800',
+//     'delivered': 'bg-green-100 text-green-800',
+//     'cancelled': 'bg-red-100 text-red-800'
+//   };
+// const ORDER_STATUSES_ICONS = {
+//     'Pending': <Search />,
+//     'Processing': <Package />,
+//     'In Transit': <Truck />,
+//     'Delivered': <CheckCircle />,
+//     'Cancelled': <X />
+// };
 
 const AdminOrdersPage = ({orders} : {
     orders: Order[]
@@ -48,10 +49,10 @@ const AdminOrdersPage = ({orders} : {
     return matchesSearch && matchesStatus;
   });
 
-  const handleStatusChange = (orderId: string, newStatus: string) => {
-    // In a real app, this would update the status in the backend
-    console.log(`Updating order ${orderId} status to ${newStatus}`);
-  };
+  // const handleStatusChange = (orderId: string, newStatus: string) => {
+  //   // In a real app, this would update the status in the backend
+  //   console.log(`Updating order ${orderId} status to ${newStatus}`);
+  // };
 
   const handleSendEmail = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,7 +109,7 @@ const AdminOrdersPage = ({orders} : {
                 Customer
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                Payment Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Total
@@ -124,7 +125,15 @@ const AdminOrdersPage = ({orders} : {
                 <td className="px-6 py-4">
                   <div>
                     <p className="font-medium">{order.id}</p>
-                    <p className="text-sm text-gray-500">{order.createdAt}</p>
+                    <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleString("en-IN", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: true,
+                      })}</p>
                   </div>
                 </td>
                 <td className="px-6 py-4">
@@ -133,16 +142,8 @@ const AdminOrdersPage = ({orders} : {
                     <p className="text-sm text-gray-500">{order?.address?.email}</p>
                   </div>
                 </td>
-                <td className="px-6 py-4">
-                  <select
-                    value={order.status}
-                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                    className="px-3 py-1 border rounded-full text-sm focus:ring-2 focus:ring-black focus:border-transparent"
-                  >
-                    {ORDER_STATUSES.map(status => (
-                      <option key={status} value={status}>{status}</option>
-                    ))}
-                  </select>
+                <td className={`px-6 py-4 ${order.paymentStatus=='failed' || order.paymentStatus=='pending' ? 'text-red-600' : 'text-green-600'}`}>
+                {order.paymentStatus}
                 </td>
                 <td className="px-6 py-4 font-medium">
                 ₹{order.totalAmount.toFixed(2)}
@@ -204,7 +205,15 @@ const AdminOrdersPage = ({orders} : {
                 <div>
                   <h3 className="font-medium mb-2">Order Summary</h3>
                   <p>Status: {selectedOrder.status}</p>
-                  <p>Date: {selectedOrder.createdAt}</p>
+                  <p>Date: {new Date(selectedOrder.createdAt).toLocaleString("en-IN", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: true,
+                      })}</p>
                   <p>Total: ₹{selectedOrder.totalAmount.toFixed(2)}</p>
                 </div>
               </div>
@@ -213,10 +222,12 @@ const AdminOrdersPage = ({orders} : {
               <div className="space-y-4">
                 {selectedOrder.items.map((item) => (
                   <div key={item.id} className="flex items-center border-b pb-4">
-                    <img
+                    <Image
                       src={item.product?.images?.[0]}
                       alt={item.product?.name}
                       className="w-20 h-20 object-cover rounded"
+                      width={100}
+                      height={100}
                     />
                     <div className="ml-4 flex-1">
                       <h4 className="font-medium">{item.product?.name}</h4>

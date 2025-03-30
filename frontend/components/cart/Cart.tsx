@@ -24,7 +24,7 @@ const CartDrawer = () => {
 
   const totalPrice: number = items?.reduce(
     (total: number, item: CartItem) =>
-      total + item.product?.price * item.quantity,
+      total + (item.product.price-(item.product.price*item.product.discount/100)),
     0
   );
 
@@ -86,7 +86,7 @@ const CartDrawer = () => {
                                 <h3>{item.product.name}</h3>
                                 <p className="ml-4">
                                   ₹
-                                  {(item.product.price * item.quantity).toFixed(
+                                  {((item?.product?.price-(item?.product?.price*item?.product?.discount/100)) * item.quantity).toFixed(
                                     2
                                   )}
                                 </p>

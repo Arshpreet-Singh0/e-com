@@ -82,6 +82,9 @@ export const getOrders = async (req: Request, res: Response, next: NextFunction)
                     }
                 },
                 address : true
+            },
+            orderBy : {
+                createdAt : 'desc'
             }
         });
 

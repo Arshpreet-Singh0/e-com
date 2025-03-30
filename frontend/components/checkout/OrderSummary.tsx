@@ -1,21 +1,24 @@
 "use client";
 
-import {
-  CartItem,
-  decreaseQuantity,
-  increaseQuantity,
-} from "@/lib/store/features/cartSlice";
-import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { useAppSelector } from "@/lib/store/hooks";
 import { Package, Truck } from "lucide-react";
 import CartQuantityHandler from "../cart/CartQuantityHandler";
+import { useMemo } from "react";
+import Image from "next/image";
 
 const OrderSummary = () => {
   const { items } = useAppSelector((store) => store.cart);
-  const totalPrice: number = items?.reduce(
-    (total: number, item: CartItem) =>
-      total + item.product?.price * item.quantity,
-    0
-  );
+
+  // Recalculate total price when items change
+  const totalPrice = useMemo(() => {
+    return items.reduce(
+      (total, item) =>
+        total +
+        (item.product.price - (item.product.price * item.product.discount) / 100) *
+          item.quantity,
+      0
+    );
+  }, [items]); // Dependency array ensures recalculation on cart updates
 
   return (
     <div className="bg-white rounded-lg shadow p-8">
@@ -23,10 +26,12 @@ const OrderSummary = () => {
       <div className="space-y-4">
         {items.map((item, idx) => (
           <div key={idx} className="flex items-center">
-            <img
+            <Image
               src={item.product.images?.[0]}
               alt={item.product.name}
               className="w-16 h-16 object-cover rounded"
+              width={100}
+              height={100}
             />
             <div className="ml-4 flex-1">
               <h3 className="text-sm font-medium text-gray-900">
@@ -38,7 +43,12 @@ const OrderSummary = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900 mb-4">
-                ₹{(item.product.price * item.quantity).toFixed(2)}
+                ₹
+                {(
+                  (item.product.price -
+                    (item.product.price * item.product.discount) / 100) *
+                  item.quantity
+                ).toFixed(2)}
               </p>
               <CartQuantityHandler item={item} />
             </div>
