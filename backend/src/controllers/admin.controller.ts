@@ -55,3 +55,38 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
         next(error);
     }
 }
+
+export const getOrders = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const orders = await prisma.order.findMany({
+            include : {
+                items : {
+                    include : {
+                        product : {
+                            select : {
+                                id : true,
+                                name : true,
+                                price : true,
+                                images : true,
+                            }
+                        }
+                    }
+                },
+                user : {
+                    select : {
+                        id : true,
+                        name : true,
+                        email : true,
+                        phone : true,
+                        
+                    }
+                },
+                address : true
+            }
+        });
+
+        res.status(200).json(orders);
+    } catch (error) {
+        next(error);
+    }
+}

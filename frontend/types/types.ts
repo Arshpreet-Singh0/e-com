@@ -57,4 +57,11 @@ export interface Order {
     updatedAt: string;
     items: OrderItem[];
     address: Address;
+    state : string;
+    user? : {
+      id : string;
+      name : string;
+      email? : string;
+      phone : string;
+    }
 }
