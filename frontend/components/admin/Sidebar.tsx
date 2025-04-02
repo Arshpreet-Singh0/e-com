@@ -21,6 +21,13 @@ const Sidebar = () => {
             Products
           </button>
           <button
+            className={`w-full flex items-center px-6 py-4 text-left text-gray-600 hover:bg-gray-100`}
+            onClick={()=>router.push('/admin/orders')}
+          >
+            <Package size={20} className="mr-3" />
+            Orders
+          </button>
+          <button
             className={`w-full flex items-center px-6 py-4 text-left cursor-pointer text-gray-600 hover:bg-gray-50`}
             onClick={()=>router.push('/admin/newproduct')}
           >

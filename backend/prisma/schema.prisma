@@ -70,7 +70,7 @@ model Order {
   totalAmount   Float // Total order cost
   status        String      @default("pending") // "pending", "processing", "shipped", "delivered", "cancelled"
   paymentStatus String      @default("unpaid") // "unpaid", "paid", "failed"
-  paymentMethod String?   // "cod", "credit_card", "upi", etc.
+  paymentMethod String? // "cod", "credit_card", "upi", etc.
 
   addressId String
   address   Address @relation(fields: [addressId], references: [id]) // Fixed typo
@@ -79,8 +79,9 @@ model Order {
   razorpayPaymentId String? // Razorpay Payment ID (captured during payment)
   razorpaySignature String? // Signature for payment verification
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Shipment  Shipment[]
 }
 
 model OrderItem {
@@ -95,9 +96,9 @@ model OrderItem {
 }
 
 model Address {
-  id        String  @id @default(uuid())
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 
   firstName String
   lastName  String?
@@ -114,4 +115,19 @@ model Address {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Order     Order[] // This means one address can be linked to multiple orders
+}
+
+model Shipment {
+  id                   String    @id @default(uuid())
+  order                Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId              String // Links to Order
+  trackingNumber       String? // Unique tracking ID from courier service
+  shipmentCompany      String? // e.g., FedEx, UPS, DHL
+  shipmentStatus       String    @default("pending") // "pending", "picked_up", "in_transit", "out_for_delivery", "delivered"
+  estimatedDelivery    DateTime?
+  shippingCost         Float     @default(0.0)
+  deliveryInstructions String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

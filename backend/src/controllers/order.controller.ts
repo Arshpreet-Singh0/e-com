@@ -134,3 +134,26 @@ export const getOrders = async (req: Request, res: Response, next: NextFunction)
         res.status(500).json({ message: "Internal Server Error", error: error instanceof Error ? error.message : error });
     }
 };
+
+export const updateOrderStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const {orderId} = req.params;
+
+        const {status, trackingNumber} = req.body;
+        if (!orderId || !status || !trackingNumber) {
+            res.status(400).json({ message: "Invalid request" });
+            return;
+        }
+
+        await prisma.order.update({
+            where : {
+                id : orderId,
+            },
+            data : {
+                status,
+            }
+        })
+    } catch (error) {
+        next(error);
+    }
+}
