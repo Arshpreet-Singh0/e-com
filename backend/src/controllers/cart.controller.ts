@@ -133,7 +133,7 @@ async function getOrCreateCart(userId: string) {
   });
 }
 
-export const syncCart = async (req : Request, res: Response, next : NextFunction) : Promise<void> => {
+export const syncCart = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { items } = req.body;
     const userId = req.userId;
@@ -145,8 +145,18 @@ export const syncCart = async (req : Request, res: Response, next : NextFunction
 
     // Fetch user's cart along with existing items
     let cart = await getOrCreateCart(userId);
-
     const cartId = cart.id;
+    
+    // Get a set of existing product IDs from the database
+    const productIds = items.map((item) => item.product?.id).filter(Boolean);
+    
+    const existingProducts = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true },
+    });
+
+    const existingProductIds = new Set(existingProducts.map((product) => product.id));
+
     const existingItemsMap = new Map(
       cart.items.map((item) => [item.productId, item])
     );
@@ -157,17 +167,21 @@ export const syncCart = async (req : Request, res: Response, next : NextFunction
 
     // Compare and prepare batch operations
     items.forEach(({ product, quantity, size }) => {
+      if (!product?.id || !existingProductIds.has(product.id)) {
+        return; // Skip products that do not exist in the database
+      }
+
       if (quantity === 0) {
-        if (existingItemsMap.has(product?.id)) {
-          itemsToDelete.push(product?.id);
+        if (existingItemsMap.has(product.id)) {
+          itemsToDelete.push(product.id);
         }
-      } else if (existingItemsMap.has(product?.id)) {
-        const existingItem = existingItemsMap.get(product?.id)!;
+      } else if (existingItemsMap.has(product.id)) {
+        const existingItem = existingItemsMap.get(product.id)!;
         if (existingItem.quantity !== quantity || existingItem.size !== size) {
           updatedItems.push({ id: existingItem.id, quantity, size });
         }
       } else {
-        newItems.push({ cartId, productId : product?.id, quantity, size });
+        newItems.push({ cartId, productId: product.id, quantity, size });
       }
     });
 

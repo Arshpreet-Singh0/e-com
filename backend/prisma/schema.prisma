@@ -37,7 +37,7 @@ model Product {
   discount    Float?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  embedding   Json
+  embedding   Json?       @db.Json
   disabled    Boolean     @default(false)
   CartItem    CartItem[]
   OrderItem   OrderItem[]
