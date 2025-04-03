@@ -13,13 +13,14 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
   const [quantity, setQuantity] = useState(1);
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((store) => store.auth);
+  const { isLoading } = useAppSelector((store) => store.cart);
 
   const handleAddToCart = (product: {
-    id : string;
-    price : number;
-    name : string;
-    images : string[],
-    discount : number;
+    id: string;
+    price: number;
+    name: string;
+    images: string[];
+    discount: number;
   }) => {
     if (!selectedSize) {
       toast.error("Please Select a size");
@@ -146,9 +147,16 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
               <button
                 className="w-full bg-black text-white py-4 rounded-md hover:bg-gray-800 flex items-center justify-center space-x-2"
                 onClick={() => handleAddToCart(product)}
+                disabled={isLoading}
               >
-                <ShoppingCart size={20} />
-                <span>Add to Cart</span>
+                {isLoading ? (
+                  <span className="animate-spin border-2 border-white border-t-transparent rounded-full h-5 w-5"></span>
+                ) : (
+                  <>
+                    <ShoppingCart size={20} />
+                    <span>Add to Cart</span>
+                  </>
+                )}
               </button>
               <button className="w-full border border-black py-4 rounded-md hover:bg-gray-100 flex items-center justify-center space-x-2">
                 <Heart size={20} />
@@ -159,8 +167,9 @@ const ProductDetailsPage = ({ product }: { product: Product }) => {
             {/* Product Details */}
             <div className="mt-8">
               <h3 className="text-lg font-medium mb-4">Product Details</h3>
-              <p className="text-gray-700 whitespace-pre-line">{product.description}</p>
-
+              <p className="text-gray-700 whitespace-pre-line">
+                {product.description}
+              </p>
             </div>
           </div>
         </div>

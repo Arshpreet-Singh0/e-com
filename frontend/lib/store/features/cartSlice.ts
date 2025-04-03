@@ -25,6 +25,7 @@ interface CartState {
   items: CartItem[];
   isCartOpen: boolean;
   isSyncing: boolean;
+  isLoading : boolean;
 }
 
 // Initial state
@@ -32,12 +33,14 @@ const initialState: CartState = {
   items: [],
   isCartOpen: false,
   isSyncing: false, // ✅ New field to track sync state
+  isLoading : false
 };
 
 // ✅ Thunk to add item to the cart and sync with the server
 export const addToCartServer = createAsyncThunk(
   "cart/addToCartServer",
   async ({ id, quantity, size }: { id: string; quantity: number; size: string }, { rejectWithValue }) => {
+    const toastId = toast.loading("Adding product to cart");
     try {
       const res = await axios.post(
         `${BACKEND_URL}/api/v1/cart`,
@@ -53,6 +56,8 @@ export const addToCartServer = createAsyncThunk(
       // @ts-expect-error: error.response may be undefined, and TypeScript doesn't recognize it
       
       return rejectWithValue(error.response?.data?.message || "Failed to add to cart");
+    }finally{
+      toast.dismiss(toastId);
     }
   }
 );
@@ -170,22 +175,51 @@ const cartSlice = createSlice({
     clearCart: (state) => {
       state.items = [];
     },
+    
   },
   extraReducers: (builder) => {
-    builder.addCase(addToCartServer.fulfilled, (state, action) => {
-      if (action.payload) {
-        state.items = action.payload; // Update state with server response
-      }
-    })
-    .addCase(deleteCartItemServer.fulfilled, (state, action) => {
-      if (action.payload) {
-        state.items = action.payload; // Update state with server response
-      }
-    })
-    .addCase(syncCart.fulfilled, (state, action) => {
-      state.items = action.payload;
-    });
-  },
+    builder
+      // ✅ Add to Cart Server Request
+      .addCase(addToCartServer.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addToCartServer.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload) {
+          state.items = action.payload; // Update state with server response
+        }
+      })
+      .addCase(addToCartServer.rejected, (state) => {
+        state.isLoading = false;
+      })
+
+      // ✅ Delete Cart Item Server Request
+      .addCase(deleteCartItemServer.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteCartItemServer.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload) {
+          state.items = action.payload; // Update state with server response
+        }
+      })
+      .addCase(deleteCartItemServer.rejected, (state) => {
+        state.isLoading = false;
+      })
+
+      // ✅ Sync Cart Request
+      .addCase(syncCart.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(syncCart.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.items = action.payload;
+      })
+      .addCase(syncCart.rejected, (state) => {
+        state.isLoading = false;
+      });
+  }
+
 });
 
 // Export actions

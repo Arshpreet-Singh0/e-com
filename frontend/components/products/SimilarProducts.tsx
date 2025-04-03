@@ -5,12 +5,16 @@ import axios from "axios";
 import { BACKEND_URL } from "@/config/config";
 import ProductCard from "./ProductCard";
 import { Product } from "@/types/types";
+import Loading from "../Loading";
+import { useAppSelector } from "@/lib/store/hooks";
 
 export function SimilarProducts({ id }: { id: string }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isLoading } = useAppSelector((store) => store.cart);
 
   useEffect(() => {
+    
     const fetchSimilarProducts = async () => {
       try {
         const res = await axios.get(`${BACKEND_URL}/api/v1/product/${id}/recommendation`);
@@ -26,7 +30,12 @@ export function SimilarProducts({ id }: { id: string }) {
   }, [id]);
 
   if (loading) {
-    return <p className="text-center text-gray-500">Loading similar products...</p>;
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h2 className="text-3xl font-bold mb-8">Similar Products</h2>
+        <Loading />
+      </div>
+    )
   }
 
   return (

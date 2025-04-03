@@ -1,3 +1,4 @@
+import Loading from "@/components/Loading";
 import ProductDetails from "@/components/products/ProductDetails";
 import { SimilarProducts } from "@/components/products/SimilarProducts";
 import { BACKEND_URL } from "@/config/config";
@@ -28,8 +29,6 @@ export default async function Page({
 }) {
     const id = (await params).id;
     const product = await getProduct(id);
-    console.log(product);
-    
 
     return (
       <>
@@ -42,7 +41,7 @@ export default async function Page({
         )}
 
         {/* Use Suspense to show a fallback while SimilarProducts is loading */}
-        <Suspense fallback={<p className="text-center text-gray-500">Loading similar products...</p>}>
+        <Suspense fallback={<Loading />}>
           <SimilarProducts id={id} />
         </Suspense>
       </>
