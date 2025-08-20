@@ -6,12 +6,12 @@ import { BACKEND_URL } from "@/config/config";
 import ProductCard from "./ProductCard";
 import { Product } from "@/types/types";
 import Loading from "../Loading";
-import { useAppSelector } from "@/lib/store/hooks";
+// import { useAppSelector } from "@/lib/store/hooks";
 
 export function SimilarProducts({ id }: { id: string }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { isLoading } = useAppSelector((store) => store.cart);
+  // const { isLoading } = useAppSelector((store) => store.cart);
 
   useEffect(() => {
     

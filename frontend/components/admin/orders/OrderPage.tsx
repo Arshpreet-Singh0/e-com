@@ -55,7 +55,10 @@ const AdminOrdersPage = ({ orders }: { orders: Order[] }) => {
 
   const updateOrderStatus = async (id: string, status: string) => {
     try {
-    } catch (error) {}
+      console.log(id, status);
+      
+    } catch (error) {console.log(error);
+    }
   };
 
   // const handleStatusChange = (orderId: string, newStatus: string) => {
